@@ -1,0 +1,2 @@
+# Only the demo server + its smoke tests need Flask.
+flask>=3.0,<4

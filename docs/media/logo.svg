@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="QuantWeave">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#020617"/><stop offset="1" stop-color="#071a2e"/>
+    </linearGradient>
+    <linearGradient id="q" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#67e8f9"/><stop offset="1" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="7" y="7" width="498" height="498" rx="105" fill="none" stroke="#164e63" stroke-width="2"/>
+  <g fill="none" stroke="url(#q)" stroke-width="20" stroke-linecap="round">
+    <path d="M366 300a108 108 0 1 1-38-96"/>
+    <path d="M146 212a108 108 0 0 1 150-46"/>
+  </g>
+  <path d="M300 292 372 364" stroke="#22d3ee" stroke-width="24" stroke-linecap="round"/>
+  <g fill="none" stroke="#0e7490" stroke-width="3" opacity=".9">
+    <path d="M172 256c22-26 44-26 66 0s44 26 66 0 44-26 36-6"/>
+    <path d="M172 286c22-26 44-26 66 0s44 26 66 0"/>
+  </g>
+  <circle cx="392" cy="128" r="7" fill="#34d399"/>
+</svg>

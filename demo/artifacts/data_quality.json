@@ -1,0 +1,83 @@
+{
+  "demo": true,
+  "data": {
+    "daily_updated_at": "2026-10-22T22:13:00+08:00",
+    "intraday": {
+      "available": true,
+      "codes": 5525,
+      "failure_count": 0,
+      "latest_codes": 5504,
+      "latest_timestamp": "2026-10-23 10:00:00",
+      "panel": "/opt/kronos/finetune_lora/data/astock_30min_ohlcva_full_20261023_ui_parallel.parquet",
+      "source": "eastmoney",
+      "status": "partial",
+      "updated_at": "2026-10-23T10:06:36+08:00"
+    },
+    "last_updated": "2026-10-23T10:06:36+08:00",
+    "latest_date": "20261022",
+    "latest_panel_date": "20261022",
+    "panel_count": 29,
+    "review_count": 0,
+    "update_status": {
+      "as_of": "2026-10-23T10:05:16+08:00",
+      "available": true,
+      "calendar_status": "available",
+      "daily": {
+        "attempts": [],
+        "completed_dates": [],
+        "latest_panel_date": "20261022",
+        "missing_calendar_dates": [],
+        "pending_dates": [],
+        "status": "up_to_date",
+        "target": "20261022"
+      },
+      "intraday": {
+        "cutoff": "2026-10-23 10:00:00",
+        "log_tail": "{'done': 100, 'total': 5525, 'frames': 100, 'failures': 0}\n{'done': 200, 'total': 5525, 'frames': 200, 'failures': 0}\n{'done': 300, 'total': 5525, 'frames': 300, 'failures': 0}\n{'done': 400, 'total': 5525, 'frames': 400, 'failures': 0}\n{'done': 500, 'total': 5525, 'frames': 500, 'failures': 0}\n{'done': 600, 'total': 5525, 'frames': 600, 'failures': 0}\n{'done': 700, 'total': 5525, 'frames': 700, 'failures': 0}\n{'done': 800, 'total': 5525, 'frames': 800, 'failures': 0}\n{'done': 900, 'total': 5525, 'frames': 900, 'failures': 0}\n{'done': 1000, 'total': 5525, 'frames': 1000, 'failures': 0}\n{'done': 1100, 'total': 5525, 'frames': 1100, 'failures': 0}\n{'done': 1200, 'total': 5525, 'frames': 1200, 'failures': 0}\n{'done': 1300, 'total': 5525, 'frames': 1300, 'failures': 0}\n{'done': 1400, 'total': 5525, 'frames': 1400, 'failures': 0}\n{'done': 1500, 'total': 5525, 'frames': 1500, 'failures': 0}\n{'done': 1600, 'total': 5525, 'frames': 1600, 'failures': 0}\n{'done': 1700, 'total': 5525, 'frames': 1700, 'failures': 0}\n{'done': 1800, 'total': 5525, 'frames': 1800, 'failures': 0}\n{'done': 1900, 'total': 5525, 'frames': 1900, 'failures': 0}\n{'done': 2000, 'total': 5525, 'frames': 2000, 'failures': 0}\n{'done': 2100, 'total': 5525, 'frames': 2100, 'failures': 0}\n{'done': 2200, 'total': 5525, 'frames': 2200, 'failures': 0}\n{'done': 2300, 'total': 5525, 'frames': 2300, 'failures': 0}\n{'done': 2400, 'total': 5525, 'frames': 2400, 'failures': 0}\n{'done': 2500, 'total': 5525, 'frames': 2500, 'failures': 0}\n{'done': 2600, 'total': 5525, 'frames': 2600, 'failures': 0}\n{'done': 2700, 'total': 5525, 'frames': 2700, 'failures': 0}\n{'done': 2800, 'total': 5525, 'frames': 2800, 'failures': 0}\n{'done': 2900, 'total': 5525, 'frames': 2900, 'failures': 0}\n{'done': 3000, 'total': 5525, 'frames': 3000, 'failures': 0}\n{'done': 3100, 'total': 5525, 'frames': 3100, 'failures': 0}\n{'done': 3200, 'total': 5525, 'frames': 3200, 'failures': 0}\n{'done': 3300, 'total': 5525, 'frames': 3300, 'failures': 0}\n{'done': 3400, 'total': 5525, 'frames': 3400, 'failures': 0}\n{'done': 3500, 'total': 5525, 'frames': 3500, 'failures': 0}\n{'done': 3600, 'total': 5525, 'frames': 3600, 'failures': 0}\n{'done': 3700, 'total': 5525, 'frames': 3700, 'failures': 0}\n{'done': 3800, 'total': 5525, 'frames': 3800, 'failures': 0}\n{'done': 3900, 'total': 5525, 'frames': 3900, 'failures': 0}\n{'done': 4000, 'total': 5525, 'frames': 4000, 'failures': 0}\n{'done': 4100, 'total': 5525, 'frames': 4100, 'failures': 0}\n{'done': 4200, 'total': 5525, 'frames': 4200, 'failures': 0}\n{'done': 4300, 'total': 5525, 'frames': 4300, 'failures': 0}\n{'done': 4400, 'total': 5525, 'frames': 4400, 'failures': 0}\n{'done': 4500, 'total': 5525, 'frames': 4500, 'failures': 0}\n{'done': 4600, 'total': 5525, 'frames': 4600, 'failures': 0}\n{'done': 4700, 'total': 5525, 'frames': 4700, 'failures': 0}\n{'done': 4800, 'total': 5525, 'frames': 4800, 'failures': 0}\n{'done': 4900, 'total': 5525, 'frames': 4900, 'failures': 0}\n{'done': 5000, 'total': 5525, 'frames': 5000, 'failures': 0}\n{'done': 5100, 'total': 5525, 'frames': 5100, 'failures': 0}\n{'done': 5200, 'total': 5525, 'frames': 5200, 'failures': 0}\n{'done': 5300, 'total': 5525, 'frames': 5300, 'failures': 0}\n{'done': 5400, 'total': 5525, 'frames': 5400, 'failures': 0}\n{'done': 5500, 'total': 5525, 'frames': 5500, 'failures': 0}\n{'done': 5525, 'total': 5525, 'frames': 5525, 'failures': 0}\n{\n  \"source\": \"eastmoney\",\n  \"input_panel\": \"/opt/kronos/finetune_lora/data/astock_30min_ohlcva_full_20261014_ui_parallel.parquet\",\n  \"output_panel\": \"/opt/kronos/finetune_lora/data/astock_30min_ohlcva_full_20261023_ui_parallel.parquet\",\n  \"codes\": 5525,\n  \"old_rows\": 14110129,\n  \"new_rows_fetched\": 1375704,\n  \"combined_rows\": 14575800,\n  \"max_timestamp\": \"2026-10-23 10:00:00\",\n  \"latest_codes\": 5504,\n  \"failure_count\": 0,\n  \"failures\": []\n}",
+        "output_panel": "/opt/kronos/finetune_lora/data/astock_30min_ohlcva_full_20261023_ui_parallel.parquet",
+        "partial": false,
+        "returncode": 0,
+        "source_panel": "/opt/kronos/finetune_lora/data/astock_30min_ohlcva_full_20261014_ui_parallel.parquet",
+        "status": "updated"
+      },
+      "session_date": "20261023",
+      "session_state": "intraday",
+      "status": "completed",
+      "trading_day": true
+    }
+  },
+  "capabilities": {
+    "chan_multi": {
+      "available": true,
+      "reason": "多级别缠论引擎已就绪"
+    },
+    "composite_factor": {
+      "available": true,
+      "reason": "E1–E10 组合因子入口已就绪"
+    },
+    "data_update": {
+      "available": true,
+      "reason": "自动检查日线与已完成分时 K 线"
+    },
+    "factor_evaluate": {
+      "available": true,
+      "reason": "默认因子评估已就绪"
+    },
+    "intraday_predict": {
+      "available": true,
+      "reason": "分时模型动态推演入口已就绪"
+    },
+    "predict": {
+      "available": true,
+      "reason": "Kronos 数据目录已挂载"
+    },
+    "review_write": {
+      "available": true,
+      "reason": "写入本地 reviews/，可由同步作业归档"
+    },
+    "trend_refresh": {
+      "available": true,
+      "reason": "刷新官方指数与行业趋势快照"
+    }
+  }
+}

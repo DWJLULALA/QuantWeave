@@ -1,0 +1,125 @@
+{
+  "available": true,
+  "account": {
+    "capital": 1000000.0,
+    "cash": 300000.0,
+    "market_value": 734500.0,
+    "total_asset": 1034500.0,
+    "asof": "2026-10-23",
+    "positions": [
+      {
+        "id": "p300154",
+        "ts_code": "300154.SZ",
+        "name": "瑞凌股份",
+        "shares": 5000,
+        "entry_px": 12.4,
+        "last_price": 13.21,
+        "entry_day": "2026-10-20",
+        "created_at": "2026-10-20T09:35:00+08:00",
+        "market_value": 66050.0,
+        "float_pnl": 4050.0,
+        "return": 0.065323,
+        "action": "HOLD"
+      },
+      {
+        "id": "p000001",
+        "ts_code": "000001.SZ",
+        "name": "平安银行",
+        "shares": 20000,
+        "entry_px": 11.2,
+        "last_price": 11.48,
+        "entry_day": "2026-10-20",
+        "created_at": "2026-10-20T09:35:00+08:00",
+        "market_value": 229600.0,
+        "float_pnl": 5600.0,
+        "return": 0.025,
+        "action": "HOLD"
+      },
+      {
+        "id": "p600519",
+        "ts_code": "600519.SH",
+        "name": "贵州茅台",
+        "shares": 100,
+        "entry_px": 1480.0,
+        "last_price": 1522.5,
+        "entry_day": "2026-10-20",
+        "created_at": "2026-10-20T09:35:00+08:00",
+        "market_value": 152250.0,
+        "float_pnl": 4250.0,
+        "return": 0.028716,
+        "action": "HOLD"
+      },
+      {
+        "id": "p688981",
+        "ts_code": "688981.SH",
+        "name": "中芯国际",
+        "shares": 3000,
+        "entry_px": 48.6,
+        "last_price": 52.3,
+        "entry_day": "2026-10-20",
+        "created_at": "2026-10-20T09:35:00+08:00",
+        "market_value": 156900.0,
+        "float_pnl": 11100.0,
+        "return": 0.076132,
+        "action": "HOLD"
+      },
+      {
+        "id": "p002594",
+        "ts_code": "002594.SZ",
+        "name": "比亚迪",
+        "shares": 500,
+        "entry_px": 268.0,
+        "last_price": 259.4,
+        "entry_day": "2026-10-20",
+        "created_at": "2026-10-20T09:35:00+08:00",
+        "market_value": 129700.0,
+        "float_pnl": -4300.0,
+        "return": -0.03209,
+        "action": "HOLD"
+      }
+    ],
+    "trades": [
+      {
+        "exit_day": "2026-10-17",
+        "ts_code": "601318.SH",
+        "name": "中国平安",
+        "shares": 8000,
+        "entry_px": 52.1,
+        "exit_px": 55.4,
+        "pnl": 26400.0,
+        "ret": 0.0633,
+        "reason": "EMA 转负"
+      },
+      {
+        "exit_day": "2026-10-14",
+        "ts_code": "300750.SZ",
+        "name": "宁德时代",
+        "shares": 600,
+        "entry_px": 246.0,
+        "exit_px": 239.8,
+        "pnl": -3720.0,
+        "ret": -0.0252,
+        "reason": "止损 -5%"
+      },
+      {
+        "exit_day": "2026-10-09",
+        "ts_code": "600036.SH",
+        "name": "招商银行",
+        "shares": 9000,
+        "entry_px": 38.2,
+        "exit_px": 39.05,
+        "pnl": 7650.0,
+        "ret": 0.0223,
+        "reason": "持有 8 bar"
+      }
+    ],
+    "stats": {
+      "total_pnl": 30330.0,
+      "n_trades": 11,
+      "n_wins": 7,
+      "n_losses": 4,
+      "win_rate": 0.6364,
+      "profit_factor": 1.92
+    }
+  }
+}

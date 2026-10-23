@@ -1,0 +1,12 @@
+# Runtime for the research engine (real mode).
+flask>=3.0,<4
+numpy>=1.26
+pandas>=2.1
+scipy>=1.11
+pyarrow>=15
+requests>=2.31
+
+# Optional model / data providers (install only what you use):
+#   torch>=2.2          # Kronos inference on GPU/CPU
+#   baostock>=0.8.9     # 5-minute basket
+#   tushare>=1.4        # index / minute data

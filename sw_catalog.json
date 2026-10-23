@@ -1,0 +1,1495 @@
+{
+  "version": "SW2021",
+  "verified_at": "2026-10-19",
+  "sources": [
+    "https://www.swsresearch.com/swindex/pdf/SwClass2021/2014to2021.xlsx",
+    "https://tushare.pro/document/2?doc_id=181"
+  ],
+  "industries": [
+    {
+      "code": "801010",
+      "name": "农林牧渔",
+      "taxonomy": "sw1",
+      "classification_code": "110000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801030",
+      "name": "基础化工",
+      "taxonomy": "sw1",
+      "classification_code": "220000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801040",
+      "name": "钢铁",
+      "taxonomy": "sw1",
+      "classification_code": "230000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801050",
+      "name": "有色金属",
+      "taxonomy": "sw1",
+      "classification_code": "240000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801080",
+      "name": "电子",
+      "taxonomy": "sw1",
+      "classification_code": "270000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801880",
+      "name": "汽车",
+      "taxonomy": "sw1",
+      "classification_code": "280000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801110",
+      "name": "家用电器",
+      "taxonomy": "sw1",
+      "classification_code": "330000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801120",
+      "name": "食品饮料",
+      "taxonomy": "sw1",
+      "classification_code": "340000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801130",
+      "name": "纺织服饰",
+      "taxonomy": "sw1",
+      "classification_code": "350000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801140",
+      "name": "轻工制造",
+      "taxonomy": "sw1",
+      "classification_code": "360000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801150",
+      "name": "医药生物",
+      "taxonomy": "sw1",
+      "classification_code": "370000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801160",
+      "name": "公用事业",
+      "taxonomy": "sw1",
+      "classification_code": "410000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801170",
+      "name": "交通运输",
+      "taxonomy": "sw1",
+      "classification_code": "420000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801180",
+      "name": "房地产",
+      "taxonomy": "sw1",
+      "classification_code": "430000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801200",
+      "name": "商贸零售",
+      "taxonomy": "sw1",
+      "classification_code": "450000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801210",
+      "name": "社会服务",
+      "taxonomy": "sw1",
+      "classification_code": "460000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801780",
+      "name": "银行",
+      "taxonomy": "sw1",
+      "classification_code": "480000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801790",
+      "name": "非银金融",
+      "taxonomy": "sw1",
+      "classification_code": "490000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801230",
+      "name": "综合",
+      "taxonomy": "sw1",
+      "classification_code": "510000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801710",
+      "name": "建筑材料",
+      "taxonomy": "sw1",
+      "classification_code": "610000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801720",
+      "name": "建筑装饰",
+      "taxonomy": "sw1",
+      "classification_code": "620000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801730",
+      "name": "电力设备",
+      "taxonomy": "sw1",
+      "classification_code": "630000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801890",
+      "name": "机械设备",
+      "taxonomy": "sw1",
+      "classification_code": "640000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801740",
+      "name": "国防军工",
+      "taxonomy": "sw1",
+      "classification_code": "650000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801750",
+      "name": "计算机",
+      "taxonomy": "sw1",
+      "classification_code": "710000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801760",
+      "name": "传媒",
+      "taxonomy": "sw1",
+      "classification_code": "720000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801770",
+      "name": "通信",
+      "taxonomy": "sw1",
+      "classification_code": "730000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801950",
+      "name": "煤炭",
+      "taxonomy": "sw1",
+      "classification_code": "740000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801960",
+      "name": "石油石化",
+      "taxonomy": "sw1",
+      "classification_code": "750000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801970",
+      "name": "环保",
+      "taxonomy": "sw1",
+      "classification_code": "760000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801980",
+      "name": "美容护理",
+      "taxonomy": "sw1",
+      "classification_code": "770000",
+      "parent_code": null,
+      "parent_name": null,
+      "published_at_verification": true
+    },
+    {
+      "code": "801016",
+      "name": "种植业",
+      "taxonomy": "sw2",
+      "classification_code": "110100",
+      "parent_code": "801010",
+      "parent_name": "农林牧渔",
+      "published_at_verification": true
+    },
+    {
+      "code": "801015",
+      "name": "渔业",
+      "taxonomy": "sw2",
+      "classification_code": "110200",
+      "parent_code": "801010",
+      "parent_name": "农林牧渔",
+      "published_at_verification": true
+    },
+    {
+      "code": "801011",
+      "name": "林业Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "110300",
+      "parent_code": "801010",
+      "parent_name": "农林牧渔",
+      "published_at_verification": false
+    },
+    {
+      "code": "801014",
+      "name": "饲料",
+      "taxonomy": "sw2",
+      "classification_code": "110400",
+      "parent_code": "801010",
+      "parent_name": "农林牧渔",
+      "published_at_verification": true
+    },
+    {
+      "code": "801012",
+      "name": "农产品加工",
+      "taxonomy": "sw2",
+      "classification_code": "110500",
+      "parent_code": "801010",
+      "parent_name": "农林牧渔",
+      "published_at_verification": true
+    },
+    {
+      "code": "801017",
+      "name": "养殖业",
+      "taxonomy": "sw2",
+      "classification_code": "110700",
+      "parent_code": "801010",
+      "parent_name": "农林牧渔",
+      "published_at_verification": true
+    },
+    {
+      "code": "801018",
+      "name": "动物保健Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "110800",
+      "parent_code": "801010",
+      "parent_name": "农林牧渔",
+      "published_at_verification": true
+    },
+    {
+      "code": "801019",
+      "name": "农业综合Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "110900",
+      "parent_code": "801010",
+      "parent_name": "农林牧渔",
+      "published_at_verification": false
+    },
+    {
+      "code": "801033",
+      "name": "化学原料",
+      "taxonomy": "sw2",
+      "classification_code": "220200",
+      "parent_code": "801030",
+      "parent_name": "基础化工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801034",
+      "name": "化学制品",
+      "taxonomy": "sw2",
+      "classification_code": "220300",
+      "parent_code": "801030",
+      "parent_name": "基础化工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801032",
+      "name": "化学纤维",
+      "taxonomy": "sw2",
+      "classification_code": "220400",
+      "parent_code": "801030",
+      "parent_name": "基础化工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801036",
+      "name": "塑料",
+      "taxonomy": "sw2",
+      "classification_code": "220500",
+      "parent_code": "801030",
+      "parent_name": "基础化工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801037",
+      "name": "橡胶",
+      "taxonomy": "sw2",
+      "classification_code": "220600",
+      "parent_code": "801030",
+      "parent_name": "基础化工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801038",
+      "name": "农化制品",
+      "taxonomy": "sw2",
+      "classification_code": "220800",
+      "parent_code": "801030",
+      "parent_name": "基础化工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801039",
+      "name": "非金属材料Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "220900",
+      "parent_code": "801030",
+      "parent_name": "基础化工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801043",
+      "name": "冶钢原料",
+      "taxonomy": "sw2",
+      "classification_code": "230300",
+      "parent_code": "801040",
+      "parent_name": "钢铁",
+      "published_at_verification": true
+    },
+    {
+      "code": "801044",
+      "name": "普钢",
+      "taxonomy": "sw2",
+      "classification_code": "230400",
+      "parent_code": "801040",
+      "parent_name": "钢铁",
+      "published_at_verification": true
+    },
+    {
+      "code": "801045",
+      "name": "特钢Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "230500",
+      "parent_code": "801040",
+      "parent_name": "钢铁",
+      "published_at_verification": true
+    },
+    {
+      "code": "801051",
+      "name": "金属新材料",
+      "taxonomy": "sw2",
+      "classification_code": "240200",
+      "parent_code": "801050",
+      "parent_name": "有色金属",
+      "published_at_verification": true
+    },
+    {
+      "code": "801055",
+      "name": "工业金属",
+      "taxonomy": "sw2",
+      "classification_code": "240300",
+      "parent_code": "801050",
+      "parent_name": "有色金属",
+      "published_at_verification": true
+    },
+    {
+      "code": "801053",
+      "name": "贵金属",
+      "taxonomy": "sw2",
+      "classification_code": "240400",
+      "parent_code": "801050",
+      "parent_name": "有色金属",
+      "published_at_verification": true
+    },
+    {
+      "code": "801054",
+      "name": "小金属",
+      "taxonomy": "sw2",
+      "classification_code": "240500",
+      "parent_code": "801050",
+      "parent_name": "有色金属",
+      "published_at_verification": true
+    },
+    {
+      "code": "801056",
+      "name": "能源金属",
+      "taxonomy": "sw2",
+      "classification_code": "240600",
+      "parent_code": "801050",
+      "parent_name": "有色金属",
+      "published_at_verification": true
+    },
+    {
+      "code": "801081",
+      "name": "半导体",
+      "taxonomy": "sw2",
+      "classification_code": "270100",
+      "parent_code": "801080",
+      "parent_name": "电子",
+      "published_at_verification": true
+    },
+    {
+      "code": "801083",
+      "name": "元件",
+      "taxonomy": "sw2",
+      "classification_code": "270200",
+      "parent_code": "801080",
+      "parent_name": "电子",
+      "published_at_verification": true
+    },
+    {
+      "code": "801084",
+      "name": "光学光电子",
+      "taxonomy": "sw2",
+      "classification_code": "270300",
+      "parent_code": "801080",
+      "parent_name": "电子",
+      "published_at_verification": true
+    },
+    {
+      "code": "801082",
+      "name": "其他电子Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "270400",
+      "parent_code": "801080",
+      "parent_name": "电子",
+      "published_at_verification": true
+    },
+    {
+      "code": "801085",
+      "name": "消费电子",
+      "taxonomy": "sw2",
+      "classification_code": "270500",
+      "parent_code": "801080",
+      "parent_name": "电子",
+      "published_at_verification": true
+    },
+    {
+      "code": "801086",
+      "name": "电子化学品Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "270600",
+      "parent_code": "801080",
+      "parent_name": "电子",
+      "published_at_verification": true
+    },
+    {
+      "code": "801093",
+      "name": "汽车零部件",
+      "taxonomy": "sw2",
+      "classification_code": "280200",
+      "parent_code": "801880",
+      "parent_name": "汽车",
+      "published_at_verification": true
+    },
+    {
+      "code": "801092",
+      "name": "汽车服务",
+      "taxonomy": "sw2",
+      "classification_code": "280300",
+      "parent_code": "801880",
+      "parent_name": "汽车",
+      "published_at_verification": true
+    },
+    {
+      "code": "801881",
+      "name": "摩托车及其他",
+      "taxonomy": "sw2",
+      "classification_code": "280400",
+      "parent_code": "801880",
+      "parent_name": "汽车",
+      "published_at_verification": true
+    },
+    {
+      "code": "801095",
+      "name": "乘用车",
+      "taxonomy": "sw2",
+      "classification_code": "280500",
+      "parent_code": "801880",
+      "parent_name": "汽车",
+      "published_at_verification": true
+    },
+    {
+      "code": "801096",
+      "name": "商用车",
+      "taxonomy": "sw2",
+      "classification_code": "280600",
+      "parent_code": "801880",
+      "parent_name": "汽车",
+      "published_at_verification": true
+    },
+    {
+      "code": "801111",
+      "name": "白色家电",
+      "taxonomy": "sw2",
+      "classification_code": "330100",
+      "parent_code": "801110",
+      "parent_name": "家用电器",
+      "published_at_verification": true
+    },
+    {
+      "code": "801112",
+      "name": "黑色家电",
+      "taxonomy": "sw2",
+      "classification_code": "330200",
+      "parent_code": "801110",
+      "parent_name": "家用电器",
+      "published_at_verification": true
+    },
+    {
+      "code": "801113",
+      "name": "小家电",
+      "taxonomy": "sw2",
+      "classification_code": "330300",
+      "parent_code": "801110",
+      "parent_name": "家用电器",
+      "published_at_verification": true
+    },
+    {
+      "code": "801114",
+      "name": "厨卫电器",
+      "taxonomy": "sw2",
+      "classification_code": "330400",
+      "parent_code": "801110",
+      "parent_name": "家用电器",
+      "published_at_verification": true
+    },
+    {
+      "code": "801115",
+      "name": "照明设备Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "330500",
+      "parent_code": "801110",
+      "parent_name": "家用电器",
+      "published_at_verification": true
+    },
+    {
+      "code": "801116",
+      "name": "家电零部件Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "330600",
+      "parent_code": "801110",
+      "parent_name": "家用电器",
+      "published_at_verification": true
+    },
+    {
+      "code": "801117",
+      "name": "其他家电Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "330700",
+      "parent_code": "801110",
+      "parent_name": "家用电器",
+      "published_at_verification": false
+    },
+    {
+      "code": "801124",
+      "name": "食品加工",
+      "taxonomy": "sw2",
+      "classification_code": "340400",
+      "parent_code": "801120",
+      "parent_name": "食品饮料",
+      "published_at_verification": true
+    },
+    {
+      "code": "801125",
+      "name": "白酒Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "340500",
+      "parent_code": "801120",
+      "parent_name": "食品饮料",
+      "published_at_verification": true
+    },
+    {
+      "code": "801126",
+      "name": "非白酒",
+      "taxonomy": "sw2",
+      "classification_code": "340600",
+      "parent_code": "801120",
+      "parent_name": "食品饮料",
+      "published_at_verification": true
+    },
+    {
+      "code": "801127",
+      "name": "饮料乳品",
+      "taxonomy": "sw2",
+      "classification_code": "340700",
+      "parent_code": "801120",
+      "parent_name": "食品饮料",
+      "published_at_verification": true
+    },
+    {
+      "code": "801128",
+      "name": "休闲食品",
+      "taxonomy": "sw2",
+      "classification_code": "340800",
+      "parent_code": "801120",
+      "parent_name": "食品饮料",
+      "published_at_verification": true
+    },
+    {
+      "code": "801129",
+      "name": "调味发酵品Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "340900",
+      "parent_code": "801120",
+      "parent_name": "食品饮料",
+      "published_at_verification": true
+    },
+    {
+      "code": "801131",
+      "name": "纺织制造",
+      "taxonomy": "sw2",
+      "classification_code": "350100",
+      "parent_code": "801130",
+      "parent_name": "纺织服饰",
+      "published_at_verification": true
+    },
+    {
+      "code": "801132",
+      "name": "服装家纺",
+      "taxonomy": "sw2",
+      "classification_code": "350200",
+      "parent_code": "801130",
+      "parent_name": "纺织服饰",
+      "published_at_verification": true
+    },
+    {
+      "code": "801133",
+      "name": "饰品",
+      "taxonomy": "sw2",
+      "classification_code": "350300",
+      "parent_code": "801130",
+      "parent_name": "纺织服饰",
+      "published_at_verification": true
+    },
+    {
+      "code": "801143",
+      "name": "造纸",
+      "taxonomy": "sw2",
+      "classification_code": "360100",
+      "parent_code": "801140",
+      "parent_name": "轻工制造",
+      "published_at_verification": true
+    },
+    {
+      "code": "801141",
+      "name": "包装印刷",
+      "taxonomy": "sw2",
+      "classification_code": "360200",
+      "parent_code": "801140",
+      "parent_name": "轻工制造",
+      "published_at_verification": true
+    },
+    {
+      "code": "801142",
+      "name": "家居用品",
+      "taxonomy": "sw2",
+      "classification_code": "360300",
+      "parent_code": "801140",
+      "parent_name": "轻工制造",
+      "published_at_verification": true
+    },
+    {
+      "code": "801145",
+      "name": "文娱用品",
+      "taxonomy": "sw2",
+      "classification_code": "360500",
+      "parent_code": "801140",
+      "parent_name": "轻工制造",
+      "published_at_verification": true
+    },
+    {
+      "code": "801151",
+      "name": "化学制药",
+      "taxonomy": "sw2",
+      "classification_code": "370100",
+      "parent_code": "801150",
+      "parent_name": "医药生物",
+      "published_at_verification": true
+    },
+    {
+      "code": "801155",
+      "name": "中药Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "370200",
+      "parent_code": "801150",
+      "parent_name": "医药生物",
+      "published_at_verification": true
+    },
+    {
+      "code": "801152",
+      "name": "生物制品",
+      "taxonomy": "sw2",
+      "classification_code": "370300",
+      "parent_code": "801150",
+      "parent_name": "医药生物",
+      "published_at_verification": true
+    },
+    {
+      "code": "801154",
+      "name": "医药商业",
+      "taxonomy": "sw2",
+      "classification_code": "370400",
+      "parent_code": "801150",
+      "parent_name": "医药生物",
+      "published_at_verification": true
+    },
+    {
+      "code": "801153",
+      "name": "医疗器械",
+      "taxonomy": "sw2",
+      "classification_code": "370500",
+      "parent_code": "801150",
+      "parent_name": "医药生物",
+      "published_at_verification": true
+    },
+    {
+      "code": "801156",
+      "name": "医疗服务",
+      "taxonomy": "sw2",
+      "classification_code": "370600",
+      "parent_code": "801150",
+      "parent_name": "医药生物",
+      "published_at_verification": true
+    },
+    {
+      "code": "801161",
+      "name": "电力",
+      "taxonomy": "sw2",
+      "classification_code": "410100",
+      "parent_code": "801160",
+      "parent_name": "公用事业",
+      "published_at_verification": true
+    },
+    {
+      "code": "801163",
+      "name": "燃气Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "410300",
+      "parent_code": "801160",
+      "parent_name": "公用事业",
+      "published_at_verification": true
+    },
+    {
+      "code": "801178",
+      "name": "物流",
+      "taxonomy": "sw2",
+      "classification_code": "420800",
+      "parent_code": "801170",
+      "parent_name": "交通运输",
+      "published_at_verification": true
+    },
+    {
+      "code": "801179",
+      "name": "铁路公路",
+      "taxonomy": "sw2",
+      "classification_code": "420900",
+      "parent_code": "801170",
+      "parent_name": "交通运输",
+      "published_at_verification": true
+    },
+    {
+      "code": "801991",
+      "name": "航空机场",
+      "taxonomy": "sw2",
+      "classification_code": "421000",
+      "parent_code": "801170",
+      "parent_name": "交通运输",
+      "published_at_verification": true
+    },
+    {
+      "code": "801992",
+      "name": "航运港口",
+      "taxonomy": "sw2",
+      "classification_code": "421100",
+      "parent_code": "801170",
+      "parent_name": "交通运输",
+      "published_at_verification": true
+    },
+    {
+      "code": "801181",
+      "name": "房地产开发",
+      "taxonomy": "sw2",
+      "classification_code": "430100",
+      "parent_code": "801180",
+      "parent_name": "房地产",
+      "published_at_verification": true
+    },
+    {
+      "code": "801183",
+      "name": "房地产服务",
+      "taxonomy": "sw2",
+      "classification_code": "430300",
+      "parent_code": "801180",
+      "parent_name": "房地产",
+      "published_at_verification": true
+    },
+    {
+      "code": "801202",
+      "name": "贸易Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "450200",
+      "parent_code": "801200",
+      "parent_name": "商贸零售",
+      "published_at_verification": true
+    },
+    {
+      "code": "801203",
+      "name": "一般零售",
+      "taxonomy": "sw2",
+      "classification_code": "450300",
+      "parent_code": "801200",
+      "parent_name": "商贸零售",
+      "published_at_verification": true
+    },
+    {
+      "code": "801204",
+      "name": "专业连锁Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "450400",
+      "parent_code": "801200",
+      "parent_name": "商贸零售",
+      "published_at_verification": true
+    },
+    {
+      "code": "801206",
+      "name": "互联网电商",
+      "taxonomy": "sw2",
+      "classification_code": "450600",
+      "parent_code": "801200",
+      "parent_name": "商贸零售",
+      "published_at_verification": true
+    },
+    {
+      "code": "801207",
+      "name": "旅游零售Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "450700",
+      "parent_code": "801200",
+      "parent_name": "商贸零售",
+      "published_at_verification": false
+    },
+    {
+      "code": "801216",
+      "name": "体育Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "460600",
+      "parent_code": "801210",
+      "parent_name": "社会服务",
+      "published_at_verification": false
+    },
+    {
+      "code": "801217",
+      "name": "本地生活服务Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "460700",
+      "parent_code": "801210",
+      "parent_name": "社会服务",
+      "published_at_verification": false
+    },
+    {
+      "code": "801218",
+      "name": "专业服务",
+      "taxonomy": "sw2",
+      "classification_code": "460800",
+      "parent_code": "801210",
+      "parent_name": "社会服务",
+      "published_at_verification": true
+    },
+    {
+      "code": "801219",
+      "name": "酒店餐饮",
+      "taxonomy": "sw2",
+      "classification_code": "460900",
+      "parent_code": "801210",
+      "parent_name": "社会服务",
+      "published_at_verification": true
+    },
+    {
+      "code": "801993",
+      "name": "旅游及景区",
+      "taxonomy": "sw2",
+      "classification_code": "461000",
+      "parent_code": "801210",
+      "parent_name": "社会服务",
+      "published_at_verification": true
+    },
+    {
+      "code": "801994",
+      "name": "教育",
+      "taxonomy": "sw2",
+      "classification_code": "461100",
+      "parent_code": "801210",
+      "parent_name": "社会服务",
+      "published_at_verification": true
+    },
+    {
+      "code": "801782",
+      "name": "国有大型银行Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "480200",
+      "parent_code": "801780",
+      "parent_name": "银行",
+      "published_at_verification": true
+    },
+    {
+      "code": "801783",
+      "name": "股份制银行Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "480300",
+      "parent_code": "801780",
+      "parent_name": "银行",
+      "published_at_verification": true
+    },
+    {
+      "code": "801784",
+      "name": "城商行Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "480400",
+      "parent_code": "801780",
+      "parent_name": "银行",
+      "published_at_verification": true
+    },
+    {
+      "code": "801785",
+      "name": "农商行Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "480500",
+      "parent_code": "801780",
+      "parent_name": "银行",
+      "published_at_verification": true
+    },
+    {
+      "code": "801786",
+      "name": "其他银行Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "480600",
+      "parent_code": "801780",
+      "parent_name": "银行",
+      "published_at_verification": false
+    },
+    {
+      "code": "801193",
+      "name": "证券Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "490100",
+      "parent_code": "801790",
+      "parent_name": "非银金融",
+      "published_at_verification": true
+    },
+    {
+      "code": "801194",
+      "name": "保险Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "490200",
+      "parent_code": "801790",
+      "parent_name": "非银金融",
+      "published_at_verification": true
+    },
+    {
+      "code": "801191",
+      "name": "多元金融",
+      "taxonomy": "sw2",
+      "classification_code": "490300",
+      "parent_code": "801790",
+      "parent_name": "非银金融",
+      "published_at_verification": true
+    },
+    {
+      "code": "801231",
+      "name": "综合Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "510100",
+      "parent_code": "801230",
+      "parent_name": "综合",
+      "published_at_verification": true
+    },
+    {
+      "code": "801711",
+      "name": "水泥",
+      "taxonomy": "sw2",
+      "classification_code": "610100",
+      "parent_code": "801710",
+      "parent_name": "建筑材料",
+      "published_at_verification": true
+    },
+    {
+      "code": "801712",
+      "name": "玻璃玻纤",
+      "taxonomy": "sw2",
+      "classification_code": "610200",
+      "parent_code": "801710",
+      "parent_name": "建筑材料",
+      "published_at_verification": true
+    },
+    {
+      "code": "801713",
+      "name": "装修建材",
+      "taxonomy": "sw2",
+      "classification_code": "610300",
+      "parent_code": "801710",
+      "parent_name": "建筑材料",
+      "published_at_verification": true
+    },
+    {
+      "code": "801721",
+      "name": "房屋建设Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "620100",
+      "parent_code": "801720",
+      "parent_name": "建筑装饰",
+      "published_at_verification": true
+    },
+    {
+      "code": "801722",
+      "name": "装修装饰Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "620200",
+      "parent_code": "801720",
+      "parent_name": "建筑装饰",
+      "published_at_verification": true
+    },
+    {
+      "code": "801723",
+      "name": "基础建设",
+      "taxonomy": "sw2",
+      "classification_code": "620300",
+      "parent_code": "801720",
+      "parent_name": "建筑装饰",
+      "published_at_verification": true
+    },
+    {
+      "code": "801724",
+      "name": "专业工程",
+      "taxonomy": "sw2",
+      "classification_code": "620400",
+      "parent_code": "801720",
+      "parent_name": "建筑装饰",
+      "published_at_verification": true
+    },
+    {
+      "code": "801726",
+      "name": "工程咨询服务Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "620600",
+      "parent_code": "801720",
+      "parent_name": "建筑装饰",
+      "published_at_verification": true
+    },
+    {
+      "code": "801731",
+      "name": "电机Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "630100",
+      "parent_code": "801730",
+      "parent_name": "电力设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801733",
+      "name": "其他电源设备Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "630300",
+      "parent_code": "801730",
+      "parent_name": "电力设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801735",
+      "name": "光伏设备",
+      "taxonomy": "sw2",
+      "classification_code": "630500",
+      "parent_code": "801730",
+      "parent_name": "电力设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801736",
+      "name": "风电设备",
+      "taxonomy": "sw2",
+      "classification_code": "630600",
+      "parent_code": "801730",
+      "parent_name": "电力设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801737",
+      "name": "电池",
+      "taxonomy": "sw2",
+      "classification_code": "630700",
+      "parent_code": "801730",
+      "parent_name": "电力设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801738",
+      "name": "电网设备",
+      "taxonomy": "sw2",
+      "classification_code": "630800",
+      "parent_code": "801730",
+      "parent_name": "电力设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801072",
+      "name": "通用设备",
+      "taxonomy": "sw2",
+      "classification_code": "640100",
+      "parent_code": "801890",
+      "parent_name": "机械设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801074",
+      "name": "专用设备",
+      "taxonomy": "sw2",
+      "classification_code": "640200",
+      "parent_code": "801890",
+      "parent_name": "机械设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801076",
+      "name": "轨交设备Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "640500",
+      "parent_code": "801890",
+      "parent_name": "机械设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801077",
+      "name": "工程机械",
+      "taxonomy": "sw2",
+      "classification_code": "640600",
+      "parent_code": "801890",
+      "parent_name": "机械设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801078",
+      "name": "自动化设备",
+      "taxonomy": "sw2",
+      "classification_code": "640700",
+      "parent_code": "801890",
+      "parent_name": "机械设备",
+      "published_at_verification": true
+    },
+    {
+      "code": "801741",
+      "name": "航天装备Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "650100",
+      "parent_code": "801740",
+      "parent_name": "国防军工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801742",
+      "name": "航空装备Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "650200",
+      "parent_code": "801740",
+      "parent_name": "国防军工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801743",
+      "name": "地面兵装Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "650300",
+      "parent_code": "801740",
+      "parent_name": "国防军工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801744",
+      "name": "航海装备Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "650400",
+      "parent_code": "801740",
+      "parent_name": "国防军工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801745",
+      "name": "军工电子Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "650500",
+      "parent_code": "801740",
+      "parent_name": "国防军工",
+      "published_at_verification": true
+    },
+    {
+      "code": "801101",
+      "name": "计算机设备",
+      "taxonomy": "sw2",
+      "classification_code": "710100",
+      "parent_code": "801750",
+      "parent_name": "计算机",
+      "published_at_verification": true
+    },
+    {
+      "code": "801103",
+      "name": "IT服务Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "710300",
+      "parent_code": "801750",
+      "parent_name": "计算机",
+      "published_at_verification": true
+    },
+    {
+      "code": "801104",
+      "name": "软件开发",
+      "taxonomy": "sw2",
+      "classification_code": "710400",
+      "parent_code": "801750",
+      "parent_name": "计算机",
+      "published_at_verification": true
+    },
+    {
+      "code": "801764",
+      "name": "游戏Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "720400",
+      "parent_code": "801760",
+      "parent_name": "传媒",
+      "published_at_verification": true
+    },
+    {
+      "code": "801765",
+      "name": "广告营销",
+      "taxonomy": "sw2",
+      "classification_code": "720500",
+      "parent_code": "801760",
+      "parent_name": "传媒",
+      "published_at_verification": true
+    },
+    {
+      "code": "801766",
+      "name": "影视院线",
+      "taxonomy": "sw2",
+      "classification_code": "720600",
+      "parent_code": "801760",
+      "parent_name": "传媒",
+      "published_at_verification": true
+    },
+    {
+      "code": "801767",
+      "name": "数字媒体",
+      "taxonomy": "sw2",
+      "classification_code": "720700",
+      "parent_code": "801760",
+      "parent_name": "传媒",
+      "published_at_verification": true
+    },
+    {
+      "code": "801768",
+      "name": "社交Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "720800",
+      "parent_code": "801760",
+      "parent_name": "传媒",
+      "published_at_verification": false
+    },
+    {
+      "code": "801769",
+      "name": "出版",
+      "taxonomy": "sw2",
+      "classification_code": "720900",
+      "parent_code": "801760",
+      "parent_name": "传媒",
+      "published_at_verification": true
+    },
+    {
+      "code": "801995",
+      "name": "电视广播Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "721000",
+      "parent_code": "801760",
+      "parent_name": "传媒",
+      "published_at_verification": true
+    },
+    {
+      "code": "801223",
+      "name": "通信服务",
+      "taxonomy": "sw2",
+      "classification_code": "730100",
+      "parent_code": "801770",
+      "parent_name": "通信",
+      "published_at_verification": true
+    },
+    {
+      "code": "801102",
+      "name": "通信设备",
+      "taxonomy": "sw2",
+      "classification_code": "730200",
+      "parent_code": "801770",
+      "parent_name": "通信",
+      "published_at_verification": true
+    },
+    {
+      "code": "801951",
+      "name": "煤炭开采",
+      "taxonomy": "sw2",
+      "classification_code": "740100",
+      "parent_code": "801950",
+      "parent_name": "煤炭",
+      "published_at_verification": true
+    },
+    {
+      "code": "801952",
+      "name": "焦炭Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "740200",
+      "parent_code": "801950",
+      "parent_name": "煤炭",
+      "published_at_verification": true
+    },
+    {
+      "code": "801961",
+      "name": "油气开采Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "750100",
+      "parent_code": "801960",
+      "parent_name": "石油石化",
+      "published_at_verification": false
+    },
+    {
+      "code": "801962",
+      "name": "油服工程",
+      "taxonomy": "sw2",
+      "classification_code": "750200",
+      "parent_code": "801960",
+      "parent_name": "石油石化",
+      "published_at_verification": true
+    },
+    {
+      "code": "801963",
+      "name": "炼化及贸易",
+      "taxonomy": "sw2",
+      "classification_code": "750300",
+      "parent_code": "801960",
+      "parent_name": "石油石化",
+      "published_at_verification": true
+    },
+    {
+      "code": "801971",
+      "name": "环境治理",
+      "taxonomy": "sw2",
+      "classification_code": "760100",
+      "parent_code": "801970",
+      "parent_name": "环保",
+      "published_at_verification": true
+    },
+    {
+      "code": "801972",
+      "name": "环保设备Ⅱ",
+      "taxonomy": "sw2",
+      "classification_code": "760200",
+      "parent_code": "801970",
+      "parent_name": "环保",
+      "published_at_verification": true
+    },
+    {
+      "code": "801981",
+      "name": "个护用品",
+      "taxonomy": "sw2",
+      "classification_code": "770100",
+      "parent_code": "801980",
+      "parent_name": "美容护理",
+      "published_at_verification": true
+    },
+    {
+      "code": "801982",
+      "name": "化妆品",
+      "taxonomy": "sw2",
+      "classification_code": "770200",
+      "parent_code": "801980",
+      "parent_name": "美容护理",
+      "published_at_verification": true
+    },
+    {
+      "code": "801983",
+      "name": "医疗美容",
+      "taxonomy": "sw2",
+      "classification_code": "770300",
+      "parent_code": "801980",
+      "parent_name": "美容护理",
+      "published_at_verification": false
+    }
+  ]
+}

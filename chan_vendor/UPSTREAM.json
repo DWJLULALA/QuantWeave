@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/Vespa314/chan.py",
+  "commit": "429d6ed3043e27c93a003ba2b10e70a05575e1f5",
+  "license": "MIT",
+  "sha256": {
+    "Seg/EigenFX.py": "f98f87f8cdf5ce59b059e7a8ed6406f6f5be5e68fd9f4b66fca9c6f860ede06f",
+    "Seg/Eigen.py": "3b45589347fe1e4369597dde9919df059a4ee3b0b90eeb126179caf015fb595d",
+    "Combiner/KLine_Combiner.py": "260b1ca210a81fbd0cf1acd9cbbf3eb14be7972652bbfe0c19a4eda3e0895bbb",
+    "Common/CEnum.py": "f08c6a321c6b52b9156761f7aac59b287f800a5094b32a416f1d50ad419afbab",
+    "Common/ChanException.py": "a135bf74a795ca59f342f5793771dab3abe977c2ada9ef56c0b3c1fa0dad59bd",
+    "Common/cache.py": "608e151adfebaa5a6c75439be0d0a0f169100c72b7ee4aebfefb2e68666431bf"
+  },
+  "changes": [
+    "Relative imports and Line protocol replacing Bi/KLine dependency tree",
+    "Postponed annotations for Python 3.8",
+    "Feature-sequence logic retained including conservative nested gap confirmation"
+  ]
+}

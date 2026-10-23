@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# runtime outputs
+runs/
+reviews/
+data/
+*.log
+!demo/artifacts/*.log
+
+# local config / secrets
+.env
+.env.*
+config.local.json
+*.pem
+*.key
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
