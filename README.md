@@ -125,8 +125,7 @@ Flask 后端 + 原生 HTML/CSS/JS 前端，无前端打包步骤。演示层验�
 | [多级别缠论](docs/CHAN_MULTI_LEVEL.md) / [严格缠论](docs/STRICT_CHAN.md) | 多级别、结构规则与数据质量 |
 | [趋势分析](docs/TREND_ANALYSIS.md) | 固定趋势分、P 与相对强弱 |
 | [演示快照](docs/DEMO.md) / [隐私](docs/PRIVACY.md) | 冻结数据、模拟任务与脱敏范围 |
-| [宣传片脚本](docs/VIDEO_STORYBOARD.md) / [抖音文案](docs/DOUYIN_COPY.md) | 叙事、镜头、开场 hook、标题与发布文案 |
-| [视频制作工具](tools/promo/README.md) | 可编辑分镜、配音、动态图解和合成命令 |
+| [完整版](docs/media/quantweave-promo.mp4) / [竖屏版](docs/media/quantweave-douyin.mp4) | 产品介绍与研究流程 |
 
 ## 许可
 
