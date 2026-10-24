@@ -3,41 +3,41 @@
 
 # QuantWeave
 
-**先看市场阶段，再看选股排名。**
+**Market context before model rankings.**
 
-面向 A 股的开源研究工作台：把升浪与缠论结构、Kronos 因子、SET10、数据更新和可追溯回放接到一起。
+An open-source A-share research workbench connecting wave and Chan structures, Kronos forecasts, SET10 factors, data updates and traceable replay.
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-3776AB)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-22d3ee)](LICENSE)
 [![Demo](https://img.shields.io/badge/demo-zero--data-34d399)](README_AGENT.md)
 
-[观看宣传片](docs/media/quantweave-promo.mp4) · [29 秒竖屏版](docs/media/quantweave-douyin.mp4) · [让 AI 帮你安装](README_AGENT.md) · [研究证据与边界](docs/RESEARCH_EVIDENCE.md)
+[Product film (Mandarin)](docs/media/quantweave-promo.mp4) · [Portrait cut (Mandarin)](docs/media/quantweave-douyin.mp4) · [Install with your AI agent](README_AGENT.md) · [Research evidence](docs/RESEARCH_EVIDENCE.md)
 
-[![QuantWeave 宣传片](docs/media/poster.png)](docs/media/quantweave-promo.mp4)
+[![QuantWeave: a top model rank is a prediction, not an observed outcome](docs/media/poster.png)](docs/media/quantweave-promo.mp4)
 </div>
 
-## 股票排得很准，账户为什么还在亏？
+## The model ranks it first. Is that a buy signal?
 
-因为排第一，也可能只是跌得最少。RankIC 评价相对排序；市场方向、交易成本与能否成交，要另外判断。
+In this workflow, model forecasts become predictions of relative stock strength. **The predicted ranking can be wrong.** RankIC measures the rank correlation between prediction scores and realized returns; it is neither a percentage accuracy score nor a portfolio return. Market direction, costs and execution require separate evaluation.
 
-QuantWeave 按四个问题组织研究：
+QuantWeave organizes research around four questions:
 
-1. **现在是什么阶段？** 从大盘、行业到个股，结合升浪倾向、缠论结构和多时间级别观察上涨、下跌与盘整。顺势环境可能有利于多头，但结构判定不是收益保证。
-2. **谁更有相对优势？** Kronos 做量价时序预测，研究近期 LoRA 适配、历史回放与 EMA 平滑，再比较横截面排名。训练窗口和标签截止日期必须与测试分开。
-3. **行情换挡怎么办？** SET10 用十个量价因子等权合成，补充反转、震荡风格。研究样本中的互补不是永久对冲。
-4. **判断能不能复查？** 从数据源、参数、逐 bar 回放到模拟账户、日志和 CSV 产物，保留可检查的过程。
+1. **What phase is the market in?** Examine the broad market, industries and individual stocks across timeframes. Wave tendencies and Chan structures describe advancing, declining and consolidating conditions.
+2. **What relative strength does the model predict?** Convert Kronos price-volume forecasts into cross-sectional scores. Study recent-window LoRA adaptation, historical replay and EMA smoothing, with training labels ending before evaluation begins.
+3. **What happens when market conditions change?** Compare the adapted model with SET10, an equal-weight blend of ten price-volume factors with reversal and range-trading characteristics.
+4. **Can the result be inspected?** Follow data sources, parameters and chronological replay through paper positions, job logs and downloadable CSV/JSON artifacts.
 
-恢复的五日研究记录（2026-08-24 至 08-28）中，同评估协议下 base 平均 RankIC 为 **0.0021**，rp10 全速微调方案为 **0.0809**。这是笔记转录的短窗口比较，未从原始预测重新计算，也不能分离 LoRA 与 EMA 的独立贡献。详细训练设计、反面证据和 SET10 选择偏差见 [研究证据](docs/RESEARCH_EVIDENCE.md)。
+Recovered research notes report five-day mean RankIC of **0.0021** for base and **0.0809** for the rp10 full-speed fine-tuned variant under the same evaluation protocol, for August 24–28, 2026. These are transcribed research results, not recomputed predictions or isolated LoRA/EMA ablations. See [research evidence](docs/RESEARCH_EVIDENCE.md) for the protocol, recovery status and complementary SET10 results.
 
-## 把安装交给你的 AI
+## Let your AI agent install it
 
-复制下面这段给能操作本机终端的智能体：
+Give this prompt to an agent with access to your local terminal:
 
-> 请安装并启动 https://github.com/DWJLULALA/QuantWeave 的本地 demo。先阅读 README_AGENT.md，检查环境，创建独立虚拟环境，运行演示测试，验证服务后给我访问地址以及停止、重启方法。保留已有文件和服务。
+> Install and start the local demo from https://github.com/DWJLULALA/QuantWeave. Read README_AGENT.md first, check the environment, use an isolated virtual environment, run the demo tests and verify the service. Return the working URL and stop/restart instructions. Preserve existing files and services.
 
-[README_AGENT.md](README_AGENT.md) 是完整安装与验收流程；[AGENTS.md](AGENTS.md) 提供智能体入口。**本地 demo 无需 GPU、行情账号或模型权重**，使用冻结快照、模拟更新任务和纸上账户。
+[README_AGENT.md](README_AGENT.md) contains the installation and acceptance procedure; [AGENTS.md](AGENTS.md) provides agent entry points. **The local demo needs no GPU, market-data account or model weights.** It uses frozen snapshots, simulated update jobs and a paper account. The current application interface and videos are in Chinese; repository documentation is in English.
 
-手动安装（macOS / Linux，Python 3.11+）：
+Manual setup on macOS / Linux, with Python 3.11+:
 
 ```bash
 git clone https://github.com/DWJLULALA/QuantWeave.git
@@ -47,52 +47,52 @@ python3 -m venv .venv
 .venv/bin/python demo_server.py --host 127.0.0.1 --port 7072
 ```
 
-打开 <http://127.0.0.1:7072>，确认 `DEMO · 冻结快照` 标记。Windows 命令、端口冲突处理和健康检查见 [安装 README](README_AGENT.md)。
+Open <http://127.0.0.1:7072> and check the frozen-demo badge, `DEMO · 冻结快照`. See the [agent installation guide](README_AGENT.md) for Windows, port conflicts and health checks.
 
-也可构建容器：
+Alternatively, build a container:
 
 ```bash
 docker build -t quantweave-demo .
 docker run --rm -p 127.0.0.1:7072:7072 quantweave-demo
 ```
 
-## 从市场结构到因子验证
+## From market structure to factor evaluation
 
-<img src="docs/media/trends_industry.png" alt="行业排名与多级别趋势结构" width="100%">
+<img src="docs/media/trends_industry.png" alt="Industry rankings and market structure across timeframes; Chinese interface" width="100%">
 
-升浪观察趋势是否推进：高低点、均线、动量和趋势带提供不同证据。缠论从包含处理、分型、笔、线段到重叠中枢组织价格结构；日、周、月对照用于检查时间尺度。趋势分是固定展示规则，P 是规则倾向值，**不是校准后的上涨概率**。已确认结构与延伸候选分开显示，事后浪段不进入趋势排名。
+Wave analysis checks whether highs, lows, moving averages, momentum and trend bands support continued movement. Chan analysis organizes bars into fractals, strokes, segments and overlapping central zones. Daily, weekly and monthly views expose differences across timeframes. The trend score is a fixed display rule; P is a rule-based tendency score, **not a calibrated probability of a price increase**. Confirmed structures are separated from developing candidates, and retrospective wave labels do not enter trend rankings.
 
-<img src="docs/media/factors.png" alt="因子与 EMA 参数、回测和结果" width="100%">
+<img src="docs/media/factors.png" alt="Factor parameters, EMA controls and evaluation results; Chinese interface" width="100%">
 
-因子实验可以选择 Kronos 来源、SET10 权重、EMA、TopK、退出排名、交易成本与阶段门控。不同模式必须区分：
+Factor experiments expose Kronos sources, SET10 weights, EMA, TopK, exit ranks, costs and phase gates. The modes have different semantics:
 
-| 模式 | 实际做什么 |
+| Mode | What it computes |
 |---|---|
-| 日线 / 分时 Kronos + SET10 | 各自标准化与 EMA，再按权重合成 |
-| 纯 E 组合回放 | E1/E3/E5/E10 截面分位等权；不加入 SET10，不再做日间 EMA |
-| 自定义 E 组合展示 | 选择 E1–E10 期限与权重，查看排名和稳定性提示 |
+| Daily / intraday Kronos + SET10 | Normalize and smooth each component with EMA, then blend by weight |
+| Pure E composite replay | Equal-weight cross-sectional percentiles for E1/E3/E5/E10; no SET10 or additional daily EMA |
+| Custom E composite display | Select E1–E10 horizons and weights, then inspect rankings and stability indicators |
 
-回放使用收盘信号、下一交易日开盘成交，记录费用、现金、股数与实际暴露，并考虑涨跌停、停牌和缺价。门控影响持仓资格；排序能力与账户收益分别检查。实现细节见 [模型口径](docs/MODELS.md)。
+Replay forms signals at the close and executes at a subsequent tradable open. It tracks fees, cash, shares and realized exposure, including price-limit, suspension and missing-price constraints. Gates control position eligibility. Evaluate ranking quality and portfolio outcomes separately. See [model semantics](docs/MODELS.md).
 
-## 数据与日常工作流
+## Data and daily workflow
 
-| 能力 | 用途 |
+| Capability | Purpose |
 |---|---|
-| 数据更新 | 日线、30 分钟线分开检查；只补已收盘数据，查看缺口和失败记录 |
-| 经典案例 | 拖动时间轴，按当时已知信息逐 bar 回放 |
-| 日模型 | 查看预测期限、排名、候选及 `NO_TRADE` 状态 |
-| 分时模型 | 查看预测路径、EMA 历史、行业相对强度和提醒 |
-| 纸上账户 | 模拟录入与卖出，核对现金、持仓和盈亏；没有实盘下单接口 |
-| 历史行情 | 涨停、连板、成交热度与行业对照 |
-| 日志与产物 | 复查参数、任务状态、退出码、日志以及 CSV / JSON |
+| Data updates | Check daily and 30-minute panels separately; ingest closed bars and inspect gaps or failures |
+| Classic cases | Move through history bar by bar using information available at each point |
+| Daily model | Inspect forecast horizons, predicted rankings, candidates and `NO_TRADE` states |
+| Intraday model | Inspect forecast paths, EMA history, industry strength and position reminders |
+| Paper account | Record simulated entries and exits; inspect cash, holdings and P&L without a broker connection |
+| Historical market views | Compare price limits, consecutive limit-up events, turnover and industries |
+| Logs and artifacts | Inspect parameters, job status, exit codes, logs and CSV/JSON outputs |
 
-研究环境的日线链路使用 **Tushare**，默认个股 30 分钟更新使用**东方财富**；宽基指数日线与申万行业日线分别接入上交所 CSIP、申万宏源研究接口。其他补缺脚本不等于自动全源切换。详细入口与边界见 [数据来源](docs/DATA_SOURCES.md)。
+The live research pipeline uses **Tushare** for daily stock data and **East Money** for default 30-minute stock updates. Broad-market daily indices and Shenwan industry bars use SSE CSIP and SWS Research interfaces respectively. Separate repair scripts do not imply automatic failover across all providers. See [data sources](docs/DATA_SOURCES.md).
 
-<img src="docs/media/runs.png" alt="运行日志与可下载产物" width="100%">
+<img src="docs/media/runs.png" alt="Job history, execution logs and downloadable artifacts; Chinese interface" width="100%">
 
-## 真实研究环境
+## Live research environment
 
-公开仓库提供工作台代码和可直接运行的 demo。完整研究还需自备行情授权、日线/30 分钟面板、行业序列、模型权重，以及本项目调用的上游研究脚本；**安装 demo 不等于复现 LoRA 训练或实时预测**。
+This repository includes the workbench and a runnable demo. Full research also requires licensed market data, daily/30-minute panels, industry series, model weights and the upstream research scripts called by the application. **Installing the demo does not reproduce LoRA training or live predictions.**
 
 ```bash
 pip install -r requirements.txt
@@ -103,38 +103,32 @@ export STOCKLAB_PORT=7070
 python app.py
 ```
 
-`STOCKLAB_RUN_ROOT` 设置任务产物目录，`STOCKLAB_CONFIG` 设置本地配置文件，`STOCKLAB_*_PYTHON` 设置任务解释器。真实模式的能力探测结果应逐项检查，不能只以首页可打开作为接入成功的依据。
+Set `STOCKLAB_RUN_ROOT` for job artifacts, `STOCKLAB_CONFIG` for local configuration and `STOCKLAB_*_PYTHON` for task interpreters. Check each reported capability when connecting a live environment; a working homepage alone does not establish that data and models are available.
 
-## 开发与文档
+## Development and documentation
 
-Flask 后端 + 原生 HTML/CSS/JS 前端，无前端打包步骤。演示层验证：
+Flask backend, plain HTML/CSS/JavaScript frontend, no frontend build step. Validate the demo with:
 
 ```bash
 .venv/bin/python -m unittest test_demo_server -v
 ```
 
-算法测试按相应模块运行，需要 `requirements.txt` 及其数据依赖。CI 示例保留在 [docs/ci.example.yml](docs/ci.example.yml)。
+Algorithm tests require the relevant modules, `requirements.txt` and their data dependencies. A CI example is available in [docs/ci.example.yml](docs/ci.example.yml).
 
-| 文档 | 内容 |
+| Document | Contents |
 |---|---|
-| [智能体安装](README_AGENT.md) | 环境检查、安装、启动、验收和故障处理 |
-| [研究证据](docs/RESEARCH_EVIDENCE.md) | Kronos / SET10 对照、数据恢复状态、指标边界 |
-| [数据来源](docs/DATA_SOURCES.md) | 日线、30 分钟线、宽基与行业数据入口 |
-| [模型口径](docs/MODELS.md) | 分数、EMA、门控、成交与结构确认 |
-| [架构](docs/ARCHITECTURE.md) / [API](docs/API.md) | 模块职责、任务生命周期与接口 |
-| [多级别缠论](docs/CHAN_MULTI_LEVEL.md) / [严格缠论](docs/STRICT_CHAN.md) | 多级别、结构规则与数据质量 |
-| [趋势分析](docs/TREND_ANALYSIS.md) | 固定趋势分、P 与相对强弱 |
-| [演示快照](docs/DEMO.md) / [隐私](docs/PRIVACY.md) | 冻结数据、模拟任务与脱敏范围 |
-| [完整版](docs/media/quantweave-promo.mp4) / [竖屏版](docs/media/quantweave-douyin.mp4) | 产品介绍与研究流程 |
+| [Agent installation](README_AGENT.md) | Environment checks, setup, launch, acceptance and troubleshooting |
+| [Research evidence](docs/RESEARCH_EVIDENCE.md) | Kronos / SET10 comparisons, recovered sources and metric definitions |
+| [Data sources](docs/DATA_SOURCES.md) | Daily, intraday, broad-market and industry data connections |
+| [Model semantics](docs/MODELS.md) | Scores, EMA, gates, execution and structure confirmation |
+| [Architecture](docs/ARCHITECTURE.md) / [API](docs/API.md) | Module responsibilities, job lifecycle and endpoints |
+| [Multi-level Chan](docs/CHAN_MULTI_LEVEL.md) / [Strict Chan](docs/STRICT_CHAN.md) | Timeframes, recursive structures and data quality |
+| [Trend analysis](docs/TREND_ANALYSIS.md) | Fixed trend scores, P and relative strength |
+| [Demo snapshots](docs/DEMO.md) / [Privacy](docs/PRIVACY.md) | Frozen data, simulated jobs and sanitization |
+| [Full film](docs/media/quantweave-promo.mp4) / [Portrait cut](docs/media/quantweave-douyin.mp4) | Product introduction and research workflow, in Mandarin |
 
-## 许可
+## License
 
-本项目代码使用 [MIT](LICENSE)。`chan_vendor/` 来源于 [chan.py](https://github.com/Vespa314/chan.py)，版权与固定版本见 `chan_vendor/LICENSE` 和 `chan_vendor/UPSTREAM.json`。上游 [Kronos](https://github.com/shiyu-coder/Kronos) 遵循其自身许可，本仓库不附模型权重。
+Project code is [MIT licensed](LICENSE). `chan_vendor/` derives from [chan.py](https://github.com/Vespa314/chan.py); attribution and the pinned revision are in `chan_vendor/LICENSE` and `chan_vendor/UPSTREAM.json`. Upstream [Kronos](https://github.com/shiyu-coder/Kronos) has its own license; model weights are not included here.
 
-界面和研究结果用于研究与教学，不构成投资建议；历史表现不代表未来收益。
-
-## English
-
-**QuantWeave** is an open-source A-share research workbench. Assess market structure before using stock rankings, compare Kronos adaptation and SET10 factor styles, and trace each experiment through its data, parameters and artifacts.
-
-The local demo uses frozen, sanitized snapshots and simulated jobs. No GPU, market-data account or model weights are needed. Ask your coding agent to follow [README_AGENT.md](README_AGENT.md). Live research and LoRA reproduction require additional data, weights and upstream research assets.
+The application and research results are for research and education, not investment advice. Historical results do not establish future returns.

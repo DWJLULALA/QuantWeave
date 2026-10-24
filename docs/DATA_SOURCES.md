@@ -1,23 +1,23 @@
-# 数据从哪里来
+# Data sources
 
-下面是代码中的研究环境接入路径。**本地 demo 只读取冻结快照**，点击“更新”运行的是模拟任务，不会访问这些行情源。
+These are the connections used by the live research environment. **The local demo only reads frozen snapshots.** Its update buttons run simulated jobs and do not contact these providers.
 
-| 数据 | 当前接入 | 代码入口 | 使用时需要确认 |
+| Data | Current connection | Code entry points | Checks required |
 |---|---|---|---|
-| 个股日线、交易日历 | Tushare 及上游研究环境的数据脚本 | `update_data.sh`、`update_latest.py`；上游 `fetch_official_close.py` | 自备授权与上游脚本，核对交易日及最新完整收盘日期 |
-| 个股 30 分钟线 | 东方财富 K 线接口 | `update_intraday_market_parallel.py`，由 `update_latest.py` 调度 | `scale=30`、未复权；手数转股数；保留失败记录和旧数据 |
-| 宽基指数日线 | 上交所提供的 CSIP 序列接口 | `trend_analysis.py` | 指数代码、日期覆盖、缺失与重复 |
-| 申万行业日线 | 申万宏源研究指数接口 | `trend_analysis.py` | 行业体系与成分版本、缺日修复、来源冲突 |
-| 指数分时辅助数据 | 腾讯行情接口 | `trend_analysis.py` | 代码映射、可用时段与数据长度 |
+| Daily stocks and trading calendar | Tushare and upstream research scripts | `update_data.sh`, `update_latest.py`; upstream `fetch_official_close.py` | Supply authorization and upstream scripts; verify trading dates and the latest completed close |
+| 30-minute stocks | East Money K-line API | `update_intraday_market_parallel.py`, called by `update_latest.py` | `scale=30`, unadjusted prices; convert lots to shares; preserve failure records and existing data |
+| Daily broad-market indices | SSE CSIP series API | `trend_analysis.py` | Index codes, date coverage, missing rows and duplicates |
+| Daily Shenwan industries | SWS Research index API | `trend_analysis.py` | Classification and constituent versions, missing-date repairs and source conflicts |
+| Auxiliary intraday indices | Tencent quotes | `trend_analysis.py` | Code mapping, available sessions and history length |
 
-仓库另有 Tushare 兼容接口、腾讯/新浪补缺脚本。这些是独立接入工具，**不是默认更新链的全源自动切换保证**。接口可用性、调用权限和额度需使用者自行配置、验证；项目与上述数据提供方无隶属关系。
+The repository also contains a Tushare-compatible interface and Tencent/Sina repair scripts. They are separate adapters, **not a guarantee of automatic failover across every provider**. Configure and verify access, quotas and availability for your environment. The project is not affiliated with these providers.
 
-## 更新顺序
+## Update sequence
 
-1. 读取交易日历，决定最近已完整收盘的日线日期。
-2. 盘中按已完成的 30 分钟截止时刻截断，舍弃未收盘 bar。
-3. 增量补齐、去重、统一日期和成交量口径。
-4. 检查缺口、来源冲突和失败条目，再生成研究快照。
-5. 从任务日志和产物核对实际更新结果；任务退出不代表所有股票都成功更新。
+1. Read the trading calendar and identify the latest fully closed daily session.
+2. Truncate intraday data to the latest completed 30-minute boundary; exclude unfinished bars.
+3. Fetch increments, deduplicate and normalize dates and volume units.
+4. Check gaps, source conflicts and failed items before producing research snapshots.
+5. Inspect job logs and artifacts to confirm actual coverage. A completed process does not mean every stock updated successfully.
 
-官方接口文档：[Tushare 股票日线](https://tushare.pro/document/2?doc_id=27)、[交易日历](https://tushare.pro/document/2?doc_id=26)。具体工程接口以以上源码为准。
+Official references: [Tushare daily stocks](https://tushare.pro/document/2?doc_id=27) and [trading calendar](https://tushare.pro/document/2?doc_id=26). The source files above define the application's actual integrations.

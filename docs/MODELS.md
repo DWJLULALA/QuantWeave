@@ -1,28 +1,28 @@
-# 模型与口径
+# Models and evaluation semantics
 
-本文只描述**代码里实际执行的规则**。所有收益数字都来自历史回放，不构成未来收益承诺。
+This document describes rules implemented by the code. Historical replay metrics do not establish future returns. Model scores are predictions; their relative ordering can be wrong.
 
-## 1. 因果因子回测（`factor_evaluate.py`）
+## 1. Causal factor replay (`factor_evaluate.py`)
 
-### 执行假设
+### Execution assumptions
 
 ```text
-信号日 T 收盘（15:00）生成分数
-  → T+1 开盘按目标权重成交
-  → 持有 H 个交易日后，T+1+H 开盘卖出/换仓
-  → 每日按收盘价估值
-  → 回放末日收盘强制平仓
+Generate scores at the close of signal day T (15:00)
+  → Execute target weights at the T+1 open
+  → Exit or rebalance at the T+1+H open after H trading days
+  → Mark holdings to each daily close
+  → Liquidate at the final replay close
 ```
 
-- 成交价使用**次日开盘**，不使用信号日收盘价；
-- 单边成本 `fee_bps`（默认 10bp）在买入与卖出各计一次；
-- 现金账本逐日记录 `cash / holdings / market_value / total_asset`；
-- 只允许在 `top_k` 个席位内持有；退出条件为跌出 `exit_rank` 或持有期到期；
-- 涨跌停、停牌、缺失开盘价的标的当日不可成交，顺延到下一个可成交日。
+- Execution uses the next open, not the signal-day close.
+- Apply one-way `fee_bps` (default 10 bp) separately to buys and sells.
+- Maintain daily `cash / holdings / market_value / total_asset` records.
+- Hold at most `top_k` positions. Exit when a position falls below `exit_rank` or reaches its holding limit.
+- Price limits, suspensions and missing opening prices prevent execution that day; defer to the next tradable session.
 
-### 分数
+### Scores
 
-非纯 E 模式先将 Kronos 与 SET10 各自转换为截面分数，再分别做因果 EMA，最后合成：
+Outside pure E mode, normalize Kronos and SET10 separately across the stock universe, apply causal EMA to each and then combine:
 
 ```text
 K_t = decay_k × K_(t-1) + (1-decay_k) × normal_score(kronos_t)
@@ -30,96 +30,84 @@ S_t = decay_s × S_(t-1) + (1-decay_s) × normal_score(set10_t)
 score_t = w_kronos × K_t + w_set10 × S_t
 ```
 
-SET10 先逐因子截面 z、clip ±3、rank，再等权合成与 `normal_score`。这里的 `decay` 是旧值权重。近期训练窗口、LoRA 和研究对照见 [RESEARCH_EVIDENCE.md](RESEARCH_EVIDENCE.md)。
+SET10 applies cross-sectional z-scores, clips at ±3, ranks each factor, then combines equal weights and applies `normal_score`. `decay` is the weight on the previous value. Recent training windows, LoRA and research comparisons are documented in [RESEARCH_EVIDENCE.md](RESEARCH_EVIDENCE.md).
 
-`kronos_source=composite` 会提前转入 `composite_replay.py`：E1/E3/E5/E10 的截面分位映射到 [-1,1] 后等权合成，要求四个期限齐全，**不含 SET10，也不做日间 EMA**。该回放模式不应被解释成界面权重所表示的双因子策略。
+`kronos_source=composite` dispatches to `composite_replay.py`: map cross-sectional percentiles for E1/E3/E5/E10 to [-1,1], require all four horizons and average them equally. This mode **does not include SET10 or daily EMA**. It must not be interpreted as the two-factor strategy implied by unrelated UI weights.
 
-### 门控
+### Gates
 
-- `chan`：`up_only` 仅上涨阶段允许持仓，`non_down` 排除下跌阶段，`off` 关闭；缺失阶段按关闭处理。
-- 非纯 E 模式的 `wave`：`gate_alpha` 是市场浪型 score 的时间平滑系数，范围为 0（停用波形门控）或 [0.5,1)。平滑后的市场 score ≥ 0 才开门。
-- `gate_alpha=0` **不会关闭缠论门控**；关闭缠论门控应明确设置 `gate_mode=off`。
-- 门控不混入个股排名分数；它影响是否可建仓，并在关闭时触发退出，订单仍受后续开盘与可成交约束。
-- 纯 E 回放支持 `off/non_down/up_only` 的缠论阶段比较，不支持用波形 α 混合排序。
+- Chan: `up_only` permits holdings only in an advancing phase; `non_down` excludes declining phases; `off` disables this gate. A missing phase closes an enabled gate.
+- Wave gating outside pure E mode: `gate_alpha` smooths the market wave score over time. Valid values are 0 (disabled) or [0.5,1). A nonnegative smoothed market score opens the gate.
+- `gate_alpha=0` does **not** disable the Chan gate; use `gate_mode=off` explicitly.
+- Gates do not alter stock ranking scores. They determine entry eligibility and trigger exits when closed; orders still follow subsequent-open and tradability constraints.
+- Pure E replay supports Chan comparisons with `off/non_down/up_only`; it does not blend wave alpha into rankings.
 
-### 指标
+### Outputs
 
-- `total_return`、`annualized`、`sharpe`、`max_drawdown`、`volatility`；
-- `turnover`、`hit_rate`、`avg_holding_days`；
-- 逐日 `equity / exposure / holdings / cash`；
-- 分组（按分数分位）的次日/持有期收益与 Rank IC。
+- `total_return`, `annualized`, `sharpe`, `max_drawdown`, `volatility`.
+- `turnover`, `hit_rate`, `avg_holding_days`.
+- Daily `equity / exposure / holdings / cash`.
+- Next-day / holding-period returns by score quantile, and RankIC.
 
-回测结果写入 `runs/<job_id>/result.json` 与 `factor_daily.csv`，前端只读快照。
+RankIC compares predicted rankings with realized return rankings. It is not portfolio return or a percentage of correct predictions. Results are written to `runs/<job_id>/result.json` and `factor_daily.csv`; the frontend reads snapshots.
 
-## 2. 组合因子（`composite_factor.py`）
+## 2. Composite factor display (`composite_factor.py`)
 
-该模块选择 Kronos 的 E1–E10 预测期限，并独立计算截面分位；它不是日模型与分时模型的混合器：
+Select Kronos E1–E10 forecast horizons and calculate cross-sectional percentiles independently for each horizon:
 
 ```text
 h_score = 2 × rank_pct(k_eh) - 1
 composite_score = Σ weight_h × h_score
 ```
 
-权重经归一化，支持等权或自定义。输出 TopK、期限、实际权重、各日摘要、未来目标日期与均值、`stable/watch/break` 历史稳定性提示。它不执行模型训练或交易。
+Weights are normalized and may be equal or custom. Outputs include TopK, selected horizons, effective weights, daily summaries, future target dates and means, and historical `stable/watch/break` indicators. This module does not train models or execute trades. It combines forecast horizons, not daily and intraday models.
 
-展示模块允许选择期限；上节的纯 E 回放固定使用 E1/E3/E5/E10。两者能力不能混写。
+The display accepts selectable horizons; pure E replay above uses the fixed E1/E3/E5/E10 set. These capabilities are distinct.
 
-## 3. 缠论结构（`chan_core.py` / `chan_multi_engine.py` / `strict_chan.py`）
+## 3. Chan structures
 
-### 单级别因果链
+Modules: `chan_core.py`, `chan_multi_engine.py`, `strict_chan.py`.
+
+### Single-level causal pipeline
 
 ```text
-原始 K 线
-  → 包含处理（向上/向下合并）
-  → 分型（顶/底，等待右邻合并 K 线确认）
-  → 笔（分型之间满足最少 K 线数）
-  → 中枢（连续三笔重叠区间）
-  → 背驰（b/c 段力度比较：MACD 面积/斜率）
-  → 逐 bar 状态（上涨 / 下跌 / 盘整）
+Raw OHLC bars
+  → Directional containment handling
+  → Top/bottom fractals, confirmed after the right merged bar closes
+  → Alternating strokes with a minimum bar gap
+  → Central zones from overlapping strokes
+  → Divergence evidence
+  → Per-bar advancing / declining / consolidating state
 ```
 
-**因果约束**：任何结构只在「右邻 K 线已收盘」后才确认；回放时不允许使用未来 bar。结构一旦确认即冻结，后续只追加，不重写历史。
+Historical per-bar snapshots are frozen. Developing endpoints and zones remain explicitly provisional; confirmation timing must not use future bars. The basic multi-level engine and strict recursive engine have different divergence and confirmation rules; see their dedicated documents.
 
-### 多级别拼装
+### Multiple timeframes
 
-三个级别各自独立跑因果链，再按「大级别定方向、小级别定入场」拼装：
+Each timeframe runs its own causal pipeline. Higher timeframes provide direction; lower ones provide entry context.
 
-| 组合 | 用途 |
+| Combination | Purpose |
 |---|---|
-| `5F-30F-D` | 分时入场，30F 结构，日线方向 |
-| `30F-D-W` | 波段，30F 入场，日/周方向 |
-| `D-W-M` | 中长线，日线入场，周/月方向 |
+| `5F-30F-D` | Intraday entries, 30-minute structure, daily direction |
+| `30F-D-W` | Swing research, 30-minute entries, daily/weekly direction |
+| `D-W-M` | Longer horizons, daily entries, weekly/monthly direction |
 
-每个组合输出：
+Outputs include the three current phases and their agreement, recent zones/strokes/divergences, daily labels, walk-forward balanced accuracy, confusion matrices and window results. Training only uses labels available before each evaluation boundary; validation windows do not participate in fitting. See [CHAN_MULTI_LEVEL.md](CHAN_MULTI_LEVEL.md).
 
-- 当前三级别阶段与一致性；
-- 最近中枢、笔、背驰；
-- 逐日标签（上涨/下跌/盘整）；
-- walk-forward 的 balanced accuracy、混淆矩阵与逐窗口结果。
+### Strict recursive first-buy structures
 
-walk-forward 按时间切窗，训练窗口只包含窗口起点之前的数据，验证窗口不参与调参。
+Rule version `1.1.0` requires completed recursive evidence at R2 or higher: descending adjacent zones with separated full envelopes, verified entering b and departing c legs, divergence, a new low in c, and completed lower-level recursive evidence. Confirmation is blocked by a lower low before the final evidence, relevant missing data or source conflicts. R1 stroke-level signals remain candidates.
 
-### 严格递归 1 买（`strict_chan.py`）
+The complete rule, including tail-break vetoes, level matching and confirmation timestamps, is specified in [STRICT_CHAN.md](STRICT_CHAN.md). `strict_events.py` maintains an append-only event ledger with event identifiers, code, level, confirmation time, invalidation and evidence. A daily-bar recursive level must not be relabeled as a verified intraday timeframe.
 
-规则版本 `1.1.0`。一个「严格递归 1 买」需要同时满足：
+### Data quality
 
-1. 存在 R2+ 级别中枢；
-2. b/c 段出现背驰（MACD 面积或斜率）；
-3. c 段创出中枢新低；
-4. c 段末端出现次级别双中枢（或等价的末端结构完成）；
-5. 右侧确认：底分型 + 收盘站上分型上沿；
-6. 尾部突破否决：确认后若快速跌回分型下沿，事件作废。
+- Use only closed, observed bars; unfinished intraday bars do not enter structures.
+- Reconcile missing Shenwan dates against the official trading calendar; record supplementary sources.
+- Preserve conflicts in `data_quality` and failures instead of silently overwriting source data.
+- Label strict recursive samples with the fixed `2022-01-01` start separately from earlier histories.
 
-R1 笔级信号只记为**候选**，不升级为严格 1 买。事件写入 `strict_events.py` 的追加账本，包含 `event_id / code / level / confirm_dt / invalidated / evidence`。
-
-### 数据质量
-
-- 只用已收盘真实 K 线；盘中未收盘 bar 不进入结构；
-- 申万行业缺日按官方交易日历补齐，补源记录在 `sources`；
-- 多源冲突不自动覆盖，保留 `data_quality` 与 `failures`；
-- 固定起点 `2022-01-01` 的严格递归样本单独标注，不与早期数据混算。
-
-## 4. 趋势分（`trend_analysis.py`）
+## 4. Trend score (`trend_analysis.py`)
 
 ```text
 structure = (0.7 × phase_d + 0.3 × phase_w + 1) / 2      # phase ∈ {-1, 0, 1}
@@ -129,53 +117,44 @@ score = 100 × [0.40 × structure
              + 0.10 × rs60_percentile]
 ```
 
-- `phase_d / phase_w`：日线/周线缠论阶段，取值 `-1/0/1`，映射到 `[0,1]`；
-- `p_smooth`：七票 P 的指数平滑（`α=0.9`），取值范围 `[0,1]`；
-- `rs20 / rs60`：相对沪深 300 的 20/60 日超额收益，在横截面内取分位；
-- `position120`：当前价在近 120 日区间的位置，**不是概率**。
+- `phase_d / phase_w`: daily/weekly Chan states, -1/0/1, mapped to [0,1]. The strict implementation uses the latest completed R2 zone, with a frozen R1 direction fallback; see [TREND_ANALYSIS.md](TREND_ANALYSIS.md).
+- `p_smooth`: exponentially smoothed seven-rule P, decay 0.9, in [0,1].
+- `rs20 / rs60`: relative 20/60-day performance against CSI 300, ranked across comparable industries.
+- `position120`: current close within the 120-day closing-price range, **not a probability**.
 
-七票 P：
-
-| 票 | 多头条件 |
+| Vote | Rule |
 |---|---|
-| 道氏结构 | 高点/低点同步抬高 |
-| Supertrend | 价格在趋势带之上 |
-| ADX | >25 记 +1，<20 记 −1，其余 0 |
-| Choppiness | <38.2 记 +1，>61.8 记 −1 |
-| 均线排列 | MA20 > MA60 > MA120 记 +1；反向排列 −1 |
-| 20 日动量 | >+2% 记 +1，<−2% 记 −1 |
-| 推动计数 | 由当时已确认的拐点检查推动结构约束 |
+| Dow structure | Higher highs and higher lows |
+| Supertrend | Price above the trend band |
+| ADX | +1 above 25; −1 below 20; otherwise 0 |
+| Choppiness | +1 below 38.2; −1 above 61.8 |
+| Moving averages | +1 for MA20 > MA60 > MA120; −1 for the reverse order |
+| 20-day momentum | +1 above +2%; −1 below −2% |
+| Impulse count | Check structural constraints using turns confirmed by that point |
 
-七票包含 −1/0/+1（推动计数为 0/1），`p_raw=(mean(votes)+1)/2`；再做 `p_smooth = 0.9×p_smooth_prev + 0.1×p_raw`。
+Votes are −1/0/+1, except impulse count at 0/1. Compute `p_raw=(mean(votes)+1)/2`, then `p_smooth=0.9×p_smooth_prev+0.1×p_raw`.
 
-**事后数据隔离**：趋势页 `trend_analysis.py` 仅使用在当前 bar 已确认的拐点计算结构票；完整历史的事后 ZigZag 标签只用于灰色复盘图层，不进入 P、不进入排名。此说明针对趋势页的实现，不应直接替代其他旧版浪型脚本的因果审计。`ranking_uses_retrospective_labels` 必须为 `false`，否则前端拒绝展示排名。
+**Retrospective-label isolation:** the trend page uses only turns confirmed by the current bar for its structure votes. Full-history retrospective ZigZag labels appear only in a gray review layer and do not enter P or rankings. This describes the trend-page implementation, not an audit of every older wave script. `ranking_uses_retrospective_labels` must be `false`; otherwise the frontend rejects the ranking.
 
-## 5. 日模型（`predict`）
+## 5. Daily model (`predict`)
 
-- 输入：最近完整交易日的日线面板 + Kronos 模型权重；
-- 输出：下一交易日目标组合、计划暴露、`NO_TRADE` 状态、候选排序；
-- 风控闸门：市场状态 `risk_off`、流动性不足、数据缺口超阈值时，允许输出 0 目标与 0% 暴露；
-- 结果写入 `runs/<job_id>/result.json`，前端展示为「日模型 · 下一交易日计划」。
+- Inputs: the latest fully closed daily panel and Kronos weights.
+- Outputs: next-session target portfolio, planned exposure, `NO_TRADE` status and candidate rankings.
+- Risk gates may produce zero targets and 0% exposure for `risk_off`, insufficient liquidity or excessive data gaps.
+- Results are written to `runs/<job_id>/result.json` and shown as the next-session plan.
 
-**NO_TRADE 是正常输出，不是失败。** 它表示策略主动选择不参与，而不是没有算完。
+**`NO_TRADE` is a valid result, not a failure.** It means the strategy chose not to participate.
 
-## 6. 分时模型（`engine_intraday.py` / `intraday_timing.py`）
+## 6. Intraday model (`engine_intraday.py` / `intraday_timing.py`)
 
-- 输入：最新**已收盘** 30 分钟 bar（盘中最后一根未收盘 bar 不进入）；
-- 输出：每只股票的 16 bar 预测路径、EMA 历史、分位、状态、持仓提醒；
-- 买入窗口：14:45–14:55（尾盘），T+1 后可卖；
-- 卖出规则（先到先执行）：
-  1. T+1 且 EMA 信号转负；
-  2. 亏损达到 5% 止损；
-  3. 持有满 8 bar；
-- 行业排名与市场曲线用于相对强弱过滤，不改变单票预测路径。
+- Input: the latest **closed** 30-minute bars; exclude the unfinished final bar.
+- Outputs: a 16-bar forecast path per stock, EMA history, percentiles, states and position reminders.
+- Entry window: 14:45–14:55; sale eligibility begins at T+1.
+- Exit on the first applicable condition: an EMA signal turning negative at T+1 or later, a 5% stop loss, or an eight-bar holding limit.
+- Industry rankings and market curves filter relative strength without changing individual forecast paths.
 
-分时结果只用于研究和提醒，**不保证最佳买卖点**，也不连接任何交易接口。
+Outputs support research and reminders. They do not guarantee optimal entry/exit points or connect to a broker.
 
-## 7. 评价与边界
+## 7. Evaluation limits
 
-- 所有指标都是样本内/样本外的历史回放，存在选择偏差、幸存者偏差与数据修订风险；
-- 交易成本只建模显性费用，未建模冲击成本、滑点与容量；
-- 缠论结构依赖参数（最少 K 线数、中枢重叠规则），不同参数会改变信号；
-- 趋势分是**展示规则**，不是校准后的上涨概率；
-- 任何模型都可能长期失效。请自行验证，不要直接用于实盘。
+Historical in-sample and out-of-sample replay can contain selection, survivorship and data-revision biases. Costs model explicit fees, not market impact, slippage or capacity. Chan rules depend on minimum bar counts and overlap parameters. Trend scores are display rules, not calibrated probabilities. Model behavior must be evaluated under the intended data and execution conditions.

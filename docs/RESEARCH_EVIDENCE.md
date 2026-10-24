@@ -1,58 +1,58 @@
-# 研究思路与证据边界
+# Research design and evidence
 
-QuantWeave 按“市场阶段 → 个股排名 → 回测与记录”组织研究。RankIC 是预测分数与实际收益的秩相关，衡量相对排序；即使排序正确，排在前面的股票也可能下跌。市场方向、交易成本和可成交性需要单独检查。
+QuantWeave follows market phase → predicted stock rankings → replay and records. In this workflow, forecasts are converted into predictions of relative strength; the ranking itself can be wrong. RankIC is the rank correlation between prediction scores and realized returns. It measures ranking agreement, not percentage accuracy or portfolio returns. Market direction, transaction costs and execution need separate evaluation.
 
-## 升浪与缠论分别看什么
+## Wave and Chan analysis
 
-- 升浪/推动浪：观察高低点、趋势带、均线和动量能否支持持续推进。趋势页把已确认的结构与规则倾向一起展示；P 是规则得分的映射，不是校准后的上涨概率。
-- 缠论：包含处理后识别分型，再组织成笔、线段和重叠中枢，观察上涨、下跌与盘整结构。多级别对照用于检查不同时间尺度是否一致。
-- 结构只有在确认时才能进入当时的判断。事后浪段图层与趋势排名隔离；阶段判定有延迟，也可能失效。
+- Impulse-wave analysis checks whether highs, lows, trend bands, moving averages and momentum support continued movement. The trend page combines confirmed structures and rule-based tendencies. P maps rule scores onto a scale; it is not a calibrated probability of a price increase.
+- Chan analysis applies containment handling and fractal confirmation, then constructs strokes, segments and overlapping central zones to describe advancing, declining and consolidating structures. Multiple timeframes expose agreement or disagreement across scales.
+- A structure enters a decision only when confirmed. Retrospective wave layers are excluded from trend rankings. Phase identification can lag or fail.
 
-## Kronos、近期 LoRA 与 EMA
+## Kronos, recent-window LoRA and EMA
 
-[上游 Kronos](https://github.com/shiyu-coder/Kronos) 是基于量价序列的自回归预测模型，模型原理见[论文](https://arxiv.org/abs/2508.02739)。本项目研究路线是在上游模型基础上做 LoRA 适配，将预测转换为横截面分数，并研究历史预测池化和日间 EMA。
+[Upstream Kronos](https://github.com/shiyu-coder/Kronos) is an autoregressive price-volume sequence forecasting model; see its [paper](https://arxiv.org/abs/2508.02739). This project studies LoRA adaptation, conversion of forecasts into cross-sectional scores, pooling across forecast vintages and day-to-day EMA.
 
-“交易前近两个月”是可以测试的近期训练窗口，不是已证明最优的固定长度。恢复的研究记录包含月度增量、近期窗口加历史回放等不同设计。rp10 全速方案对应七月增量、10% 历史回放，不能被改写成“仅用交易前两个月训练”。训练样本的未来标签必须全部在评测边界前结束。
+A roughly two-month pre-trade window is one candidate training design, not an established optimal duration. Recovered notes describe monthly increments and recent data mixed with historical replay. The rp10 full-speed variant uses a July increment plus 10% historical replay; it must not be described as training exclusively on the two preceding months. Future labels attached to training examples must all end before the evaluation boundary.
 
-EMA 在平滑排名的同时带来迟滞；反转日可能放大旧风格的影响。当前 UI 参数、不同实验中的 vintage EMA 和日间 EMA 是不同配置，不能混为一个默认值。
+EMA smooths rankings but introduces lag; on reversal days it can preserve an outdated style. UI parameters, vintage EMA and daily EMA in separate experiments are distinct configurations.
 
-### 五个目标日的同协议对照
+## Five target days under a shared protocol
 
-以下数字转录自恢复的研究笔记《牛尾窗口微调实验_20260829》§2。该笔记记载评估协议为：目标日 **2026-08-24 至 2026-08-28**、约 **5,467** 只股票、temperature 0.6、top-p 0.9、sample 1、seed 20260824、十 vintage 池化、vintage EMA 0.65、日间 EMA 0.90。
+The following values are transcribed from section 2 of the recovered research note *Bull-tail window fine-tuning experiment, 20260829*. Its evaluation protocol specifies target dates **August 24–28, 2026**, approximately **5,467 stocks**, temperature 0.6, top-p 0.9, one sample, seed 20260824, pooling across ten vintages, vintage EMA 0.65 and daily EMA 0.90.
 
-| 方案 | 五日平均 RankIC |
+| Variant | Five-day mean RankIC |
 |---|---:|
 | Kronos base | 0.0021 |
-| rp10 全速微调方案（指纹 bdecdf09） | 0.0809 |
-| 差值 | +0.0788 |
+| rp10 full-speed fine-tuned variant, fingerprint `bdecdf09` | 0.0809 |
+| Difference | +0.0788 |
 
-这是同评估协议下的模型方案比较，**不是 LoRA 与 EMA 各自增益的独立消融**，也不是收益率。研究包含多个模型选择；五日样本不足以推出长期稳定性或统计显著性。不能宣传为“收益提升 39 倍”或“更近的数据一定更好”。
+This compares model variants under the same evaluation protocol. It is **not an independent ablation of LoRA and EMA**, and these values are not returns. Multiple model choices were explored; five days do not establish long-term stability or statistical significance. The comparison does not support a “39× return improvement” or a claim that newer training data always performs better.
 
-## SET10：为排名补充另一种风格
+## SET10: a complementary ranking style
 
-SET10 由 10 个量价因子等权 rank 合成：REV_OH、OVERNIGHT、ILLIQ_20、BETA_60、VOL_RATIO、D_MA20、POS_20、RET_5、RET_10、PV_CORR_20。方向统一后聚合，其中回撤、区间位置、均线乖离等分量偏向反转风格。
+SET10 combines ten price-volume factors with equal rank weights: REV_OH, OVERNIGHT, ILLIQ_20, BETA_60, VOL_RATIO, D_MA20, POS_20, RET_5, RET_10 and PV_CORR_20. Directions are aligned before aggregation. Drawdown, range position and moving-average deviation components give the blend a reversal orientation.
 
-研究动机是补充 Kronos 近期适配方案在某些反转日的弱点。这里的“拮抗”指样本中的风格互补，不是永久负相关或风险被抵消。
+The research motivation is to complement weaknesses of the recently adapted Kronos variant on some reversal days. “Antagonistic” describes observed style complementarity in a sample, not permanent negative correlation or cancellation of risk.
 
-| 目标日 | Kronos rp10 全速 RankIC | SET10 RankIC |
+| Target date | Kronos rp10 full-speed RankIC | SET10 RankIC |
 |---|---:|---:|
 | 2026-08-24 | 0.263 | 0.022 |
 | 2026-08-27 | -0.362 | 0.195 |
 | 2026-08-31 | -0.100 | 0.210 |
 
-这几个日期用于说明表现会随行情改变，不代表所有日期。笔记中的完整八日逐日摘要见 [evidence/research_summary.csv](evidence/research_summary.csv)。同窗组合权重在这八天上选择，SET10 因子选择也有窗口内偏差，因此本宣传片不把组合的回看结果当作可实现收益或已确认的样本外提升。
+These selected dates illustrate changes across conditions, not the full period. The complete eight-day summary from the notes is in [evidence/research_summary.csv](evidence/research_summary.csv). Combination weights were selected within those eight days, and SET10 selection also has within-window bias. The retrospective combination results therefore do not establish executable returns or an out-of-sample improvement.
 
-另有《krons+set10交易策略》记录 2026-08-24 至 09-10 共 14 个目标日的**日 IC 时间序列相关性约 −0.80**。这与个股分数的横截面秩相关是不同统计量；短窗相关性不应外推为稳定对冲。同份记录还报告了某套规则在 23 个可执行样本外日中只有 2 个活跃日、净结果 −0.77%，说明从因子互补到可交易策略仍有距离。
+A separate note, *Kronos + SET10 trading strategy*, reports approximately **−0.80 correlation between daily IC time series** across 14 target dates from August 24 to September 10, 2026. This is different from cross-sectional rank correlation between stock scores and does not establish a stable hedge. The same note reports only two active days among 23 executable out-of-sample days under one rule set, with a net result of −0.77%. Complementary factors and an executable strategy are different evaluation questions.
 
-## 本次恢复与复核状态
+## Recovery and verification status
 
-找到了研究 Markdown、部分工作簿和其他回放产物；上述五日/八日比较所指向的原始逐股预测文件及对应 `daily_rankic.csv`、`combo_scan.csv` 未在恢复目录中找到。本页及 CSV 是**笔记转录摘要，未从原始预测重新计算**。逐日值按笔记保留三位小数，均值按原表保留四位，因此用舍入后的逐日值重算可能有微小差异。
+Research Markdown, some workbooks and other replay artifacts were recovered. The original per-stock predictions and referenced `daily_rankic.csv` and `combo_scan.csv` for the five/eight-day comparisons were not found in the restored directory. This page and its CSV are **transcribed summaries, not recomputations from raw predictions**. Daily values retain three decimal places from the notes; means retain four, so recomputing means from rounded daily values can produce small differences.
 
-来源笔记：
+Source notes, with titles translated for this documentation:
 
-- 《牛尾窗口微调实验_20260829》§1–2、§9（末次追加 2026-09-03）。
-- 《补充实验结论_20260827》§2–5：rp10 增量与回放设计。
-- 《等权因子_SET10_有效因子卡_20260829》§2、§6–7：定义、选择偏差与八日对照。
-- 《krons+set10交易策略》（2026-09-11）：14 日 IC 相关性与后续交易验证。
+- *Bull-tail window fine-tuning experiment, 20260829*, sections 1–2 and 9; last appended September 3, 2026.
+- *Supplementary experiment conclusions, 20260827*, sections 2–5: rp10 incremental training and replay design.
+- *SET10 equal-weight factor card, 20260829*, sections 2 and 6–7: definition, selection bias and eight-day comparison.
+- *Kronos + SET10 trading strategy*, September 11, 2026: 14-day IC correlation and subsequent trading evaluation.
 
-发布仅包含必要汇总，不包含私有账户、服务器路径、训练凭据或原始行情数据。完整再验证需要恢复原始预测、标签、模型指纹与执行协议，再进行更长的 walk-forward 检验。
+Only aggregate research information is included here, without private accounts, server paths, training credentials or raw market data. Full revalidation requires the original predictions, labels, model fingerprints and execution protocol, followed by longer walk-forward evaluation.

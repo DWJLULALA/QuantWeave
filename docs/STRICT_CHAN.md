@@ -1,54 +1,63 @@
-# 申万补缺与严格递归一买口径（2026-10-19）
+# Shenwan data repair and strict recursive first-buy rules
 
-本实现服务于趋势分析页面，独立于组合交易门控和收益回测。固定历史起点为2022-01-01（2021版申万分类实施之后）；每天只追加已收盘的真实K线，避免滚动1000条窗口重置结构起点。所有结论以当次快照的同一收盘日期为准。
+Specification date: October 19, 2026. This implementation serves the trend page independently of portfolio gates and return replay. Its fixed historical start is January 1, 2022, after the 2021 Shenwan classification was introduced. It appends closed, observed bars rather than resetting the structure with a rolling 1,000-bar window. Comparisons use the same closing date within a snapshot.
 
-## 行情与来源
+## Market data and provenance
 
-申万研究官方日K为主源，保留所有已有原行。按上交所开市日历逐日对账，2026-09-25是中秋休市，不能补一根虚假K线。主源缺失日期使用相同申万代码 pt01+801xxx 的 A股数据API日K补入，先用腾讯报价名称核验代码，再用至少20个重叠日、至少99%在max(0.011点,0.1基点)数值容差内匹配收盘的比例校验序列身份；开盘同样可能存在源间修订，所有O/H/L/C差异均记为争议而非自动覆盖。高低价不一致仍保留官方值，并登记争议日期；严格信号的证据窗口涉及争议时禁止确认。补源填入的真实OHLC并不等于解决了原来源争议，界面分别展示缺失与冲突。
+Official SWS Research daily OHLC is the primary source; existing source rows are preserved. Reconcile dates against the SSE trading calendar. September 25, 2026 was a Mid-Autumn Festival closure and must not be filled with a fabricated bar.
 
-批量接口每次最多5个指数；遵循供应商公开的匿名PoW挑战和每分钟15次限制，单进程4.3秒最小间隔。不购买服务、不复用他人凭据。只请求缺口周边窗口，缓存原始字节、SHA256、请求URL和实际获取时间。API失败、限流、停发不使用前值、插值、成分股聚合或工作日猜测补K。未发布的10个二级目录仍保留未发布状态。
+Missing dates may be filled from AShareAPI daily bars for the same Shenwan code, `pt01+801xxx`. Verify the code using Tencent's quoted name, then compare at least 20 overlapping sessions. At least 99% of closes must match within `max(0.011 index points, 0.1 basis points)`. Record every O/H/L/C disagreement, including possible opening-price revisions. Retain official high/low values where sources disagree, and block strict confirmation when a conflict intersects its evidence window. A supplementary observed bar can fill a gap without resolving an existing source conflict; the UI reports gaps and conflicts separately.
 
-参考：
-- https://www.swsresearch.com/institute-sw/api/index_publish/trend/?swindexcode=801010&period=DAY
-- https://ashareapi.com/docs/endpoints/kline/
-- https://ashareapi.com/docs/endpoints/challenge/
-- https://tushare.pro/document/2?doc_id=26
-- https://www.sse.com.cn/disclosure/announcement/general/c/c_20260915_10832273.shtml
+The documented batch interface accepts at most five indices per request. The adapter follows the provider's published anonymous proof-of-work challenge and 15-request-per-minute limit, with a 4.3-second minimum interval in one process. It does not purchase services or reuse another person's credentials. Request only windows around gaps and cache raw bytes, SHA256, request URL and actual retrieval time. API failure, throttling or discontinued publication must not trigger forward filling, interpolation, constituent aggregation or guessed weekday bars. Ten unpublished level-two catalog entries remain marked unpublished.
 
-## 递归结构
+References:
 
-R0为当前K线频率上经包含处理和分型确认的笔基底。笔端分型出现不表示笔冻结：只有相反方向新笔被接受，上一笔才能成为固定输入，使用此时实际可知的源K线时间。R1及以上线段按特征序列分型、包含关系、实际突破与缺口确认构造；不按固定三笔拼接。开源特征序列来自 chan.py，固定提交429d6ed3043e27c93a003ba2b10e70a05575e1f5，MIT许可，版权与适配清单保存在chan_vendor。其嵌套缺口确认比原文更保守，属于严格条件的保守子集，可能延迟或遗漏。
+- [SWS Research daily index interface](https://www.swsresearch.com/institute-sw/api/index_publish/trend/?swindexcode=801010&period=DAY)
+- [AShareAPI K-line endpoint](https://ashareapi.com/docs/endpoints/kline/)
+- [AShareAPI challenge endpoint](https://ashareapi.com/docs/endpoints/challenge/)
+- [Tushare trading calendar](https://tushare.pro/document/2?doc_id=26)
+- [SSE September 2026 holiday announcement](https://www.sse.com.cn/disclosure/announcement/general/c/c_20260915_10832273.shtml)
 
-每层只向父层暴露已冻结子结构，包含.next指针的遍历也不能看到尚不可知的子结构。中枢取三个已完成子级走势的重叠核心ZD/ZG，反抽回中枢时延伸原中枢、更新其尚未结束的DD/GG包络；经第三买卖条件结束后冻结。相邻中心包络重叠标为扩展待升级，不能作为同级趋势；父层仍需真实递归完成，不因两个核心区间分离就擅自升格或认定趋势。
+## Recursive structures
 
-规则1.1.0另检查已观察但尚未释放成完整子结构的尾部：候选顶/底若已在实际确认时刻被该尾部突破，不得冻结旧端点。这些价格只用于否决已被突破的端点，不会充当已完成的特征序列元素。检查范围严格限于最后已释放子结构端点之后、当前证据可知时刻之前；不会读取未来，也不把包含处理中已舍弃的全历史原始极值重新引入父层。
+R0 is the stroke basis after containment handling and fractal confirmation at the input bar frequency. An endpoint fractal does not freeze a stroke: the preceding stroke becomes fixed only when a new opposing stroke is accepted, using the source-bar timestamp actually available then.
 
-R2严格递归一买要求：
+R1 and higher segments use feature-sequence fractals, containment, actual breaks and gap confirmation, not fixed groups of three strokes. The adapted feature-sequence implementation comes from `chan.py`, pinned at `429d6ed3043e27c93a003ba2b10e70a05575e1f5`, under MIT. Attribution and adaptation records are in `chan_vendor/`. Its nested-gap confirmation implements a stricter subset of the reference conditions and can delay or omit structures.
 
-1. 两个相邻、同结构层级、均向下离开的已结束中枢；后一中枢GG < 前一中枢DD，且不包含初始试探线段。
-2. A/B的几何结束位置须在c段开始前；中枢结束的确认则可能要等c之后的回抽完成。确认等待期产生的后续中枢不能替换原A/B。可核验的进入b段、从末中枢离开的c段，次级别回抽不回中枢（三卖），c段创新低。
-3. c段负MACD面积小于b段，同时低点DIF抬高。本实现采用两项同时满足的保守背驰度量，不宣称MACD规则是唯一缠论定义。
-4. c段经特征序列冻结；c段内部至少两个下降次级别中枢，末端同一低点出现已确认的次级别背驰，并逐层递归到底层已声明笔基底。
-5. 从低点到最后必要证据出现前不能再次跌破低点；缺口及证据窗口内来源争议禁止确认。
+Each level exposes only frozen child structures to its parent; traversal through `.next` must not reveal unavailable children. Three completed child movements define a central overlap core ZD/ZG. Retracement into that core extends the existing zone and its developing DD/GG envelope. Freeze it after the third-type departure conditions complete. Overlap between adjacent full envelopes indicates expansion awaiting an upgrade, not a trend at the same level. A parent must genuinely complete recursively; separated cores alone cannot establish a higher-level structure or trend.
 
-只有R2及以上完整递归证据进入严格信号。R1底层笔级背驰只记候选。日K的R1/R2不能重命名成真实30分钟/日线级别：申万可靠的历史30/60分钟OHLC目前没有拿到，分钟区间套始终标未验证。R2及以上记录需带“K线笔基底”的范围限定，不代表已经验证真实日内路径。
+Rule `1.1.0` also checks an observed tail that has not yet been released as a complete child structure. If it has already broken a candidate top/bottom by the actual confirmation time, that old endpoint cannot freeze. Tail prices can veto a broken endpoint but cannot act as completed feature-sequence elements. The check is limited to the period after the last released child endpoint and before the current evidence cutoff. It neither reads future prices nor reintroduces all raw historical extrema discarded by containment handling.
 
-层级对应必须明确：R2中枢由R1线段构成，其进入b、离开c也是R1线段；不能用R2父线段去匹配R2中枢出口。R1中枢的出口同样是R0冻结笔。信号在中枢结束证据到齐时重新核验此前出口；不因c首次到达时中枢尚未结束而永久漏检。c内部的区间套在c的子结构上局部分解，剔除进入首中枢的首段，不要求它偶然与全局中枢切分或已发布的全局低层标签重合。每层都保留中枢、动能和相同端点的完整证明。
+An R2 strict recursive first-buy event requires:
 
-原文与源码依据见研究报告《递归缠论严格一买_20261019_规则核验.md》。趋势排名保留40/30/20/10权重，其结构项改用最近已结束R2中枢相对收盘位置，不足时使用最近已冻结R1线段方向，均不足为0；事后浪段仍不进入排名。
+1. Two completed adjacent zones at the same structural level, both with downward departures. The latter zone's GG must be below the former's DD. Initial trial segments are excluded.
+2. The geometric ends of zones A/B precede c's start, although confirmation of those ends may wait for a later retracement. Zones formed during that wait cannot replace the original A/B. The entering b and departing c legs must be identifiable; a lower-level retracement must not reenter the zone, and c must make a new low.
+3. The magnitude of c's negative MACD area is smaller than b's, while DIF at the low is higher. Both conditions are required by this implementation; they are not claimed as the only definition of Chan divergence.
+4. The feature sequence freezes c. Inside c, at least two descending lower-level zones and confirmed terminal divergence at the same low must complete recursively down to the declared stroke basis.
+5. No lower low occurs before the final necessary evidence arrives. Missing bars or source conflicts within the evidence window block confirmation.
 
-## 不重绘、时间与失效
+Only complete R2-or-higher recursive evidence creates a strict signal. R1 stroke divergence remains a candidate. R1/R2 computed from daily bars must not be renamed as actual 30-minute/daily nested-timeframe evidence. Reliable historical Shenwan 30/60-minute OHLC was unavailable in this setup; intraday nesting stays unverified. R2+ records carry the bar-confirmed-stroke-basis qualification.
 
-低点发生时间point_at、最后必要证据的confirmed_at、首次实际获取/计算的observed_at分别保存。首次建库的历史信号全部标历史补算，不能当作当时发出的实盘提醒。前缀重放只比较截至当日已可知的冻结结构及信号；发展中枢、末端虚笔明确标示可变。历史价格修订和规则升级不属于未来行情追加，保留原始观测、输入指纹并追加撤回/恢复事件，不能无痕覆盖。
+Level matching is explicit: an R2 zone is made of R1 segments, and its b/c legs are R1 segments too. An R2 parent segment cannot be used as an R2 zone exit. Likewise, R1 zone exits are frozen R0 strokes. When evidence completes a zone, recheck its earlier exit; do not permanently miss an event because the zone was unfinished at c's first arrival.
 
-失效价固定为信号低点。确认后仅在后续已收盘日K最低价严格跌破该价时追加失效事件；历史低点、确认时间、失效价不挪动，不删除失效点。确认后的行情缺口只使当前监控状态待核验，不能回头撤销缺口之前已经具备的结构证据。未收盘日K、当前未完成周/月K不进入计算；分钟历史通过累计归档保持初始基底。
+Nested evidence inside c is decomposed locally from c's children, excluding the first movement entering the initial zone. It need not coincide with global zone partitions or published lower-level labels. Preserve zone, momentum and common-endpoint evidence at every level.
 
-signal_ledger/{code}_{level}.jsonl 为仅追加事件记录，包含首次观测、失效、数据修订撤回/恢复与输入检查点。repairs/audit逐行业保存补缺和冲突审计。快照按generation原子发布，失败保留上一完整版本。
+The internal October 19, 2026 rule audit records the reference-text and source-code comparison. Trend rankings retain 40/30/20/10 weights. Their structural phase uses the close relative to the latest completed R2 zone; if unavailable, use the latest frozen R1 segment direction, otherwise zero. Retrospective waves remain excluded.
 
-## 验证
+## Confirmation time, revisions and invalidation
 
-测试覆盖笔的真正冻结时刻、特征序列含/不含缺口、包含与中心延伸、下跌趋势完整包络、末端递归证据缺失、确认前新低、确认后失效、行情补源身份/价格核验、历史补算时间、来源冲突拦截、前缀重放及未来大跌扰动。另对实际155个申万行业做快照日期、缺口、买点和结构回放审计，最终数字见本次审计结果文件。
+Store three separate times: historical low `point_at`, arrival of the final required evidence `confirmed_at`, and first actual retrieval/calculation `observed_at`. Initial historical reconstruction is labeled as backfill, not an alert sent at the historical timestamp.
 
-1.1.0增加识别能力回归：真实上证113根最小输入复现“确认时端点已被观察到的尾部突破”；原始模拟OHLC经分型、冻结笔、线段、中枢和局部递归全链路产生R2一买（不注入中枢/信号、不模拟动能判断）。该点在第937根形成，到第1059根收盘后才确认；提前一根不可见。确认后的未来暴跌只追加失效，不改变点位、确认时刻和失效价。模拟阳性用于验证能力，不能作为市场盈利证据。
+Prefix replay compares only frozen structures and signals knowable by that cutoff. Developing zones and terminal provisional strokes remain labeled mutable. Historical price revisions and rule upgrades differ from appending future bars: preserve observations and input fingerprints, then append withdrawal/restoration events rather than silently overwriting history.
 
-经典案例页面位于“缠论 / 经典案例分析”。`classic_cases.py`从固定历史补算五个上证真实案例，并明确单列模拟证明例。量比、额比以不含当日的过去20日均值为基线，价量规则仅用于教学观察；既不改写结构买点，也不进入E因子或实际组合门控。历史E数据不覆盖经典年份，页面不声称组合胜率或收益。
+The invalidation price stays fixed at the signal low. After confirmation, append an invalidation event only when a subsequent closed daily bar has a low strictly below it. Do not move the historical point, confirmation time or invalidation price, and do not delete invalidated signals. A later data gap puts current monitoring into a pending-verification state; it does not retroactively remove previously complete evidence.
+
+Exclude unfinished daily, weekly and monthly bars. Accumulated intraday archives preserve the initial basis. `signal_ledger/{code}_{level}.jsonl` is append-only and records initial observations, invalidation, revision withdrawals/restorations and input checkpoints. `repairs/audit` stores per-industry repair/conflict audits. Publish each snapshot generation atomically; retain the previous complete generation on failure.
+
+## Validation
+
+Tests cover actual stroke-freeze times, feature sequences with and without gaps, containment and zone extension, complete descending envelopes, missing terminal recursion, new lows before confirmation, invalidation afterward, supplementary-source identity/price checks, backfill timestamps, conflict blocking, prefix replay and future-crash perturbations. Separate audits inspect snapshot dates, gaps, signals and structure replay for 155 observed Shenwan industries; counts belong to their dated audit outputs.
+
+Version `1.1.0` adds two recognition regressions. A 113-bar SSE fixture reproduces a candidate endpoint already broken by an observed tail at confirmation. A synthetic OHLC fixture passes through the complete fractal → frozen stroke → segment → zone → local recursion pipeline to produce an R2 first-buy event, without injecting zones/signals or mocking momentum decisions. Its low occurs at bar 937 but is confirmed only after bar 1059 closes; it is unavailable one bar earlier. A later crash appends invalidation without changing the point, confirmation time or threshold. This synthetic positive case validates implementation behavior, not trading performance.
+
+The classic-case page uses `classic_cases.py` to reconstruct five historical SSE cases and separately identifies the synthetic proof case. Volume/amount ratios use the preceding 20-session average, excluding the current day. Price-volume observations are educational overlays: they do not rewrite structure signals, E factors or portfolio gates. Historical E data does not cover those classic years, so the page reports no combined-strategy win rate or return.

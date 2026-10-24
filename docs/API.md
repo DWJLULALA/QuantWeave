@@ -1,20 +1,20 @@
-# API 契约
+# API contract
 
-所有接口以 `/api` 为前缀，请求与响应均为 JSON（产物下载除外）。演示服务器 `demo_server.py` 实现同一套契约的子集，前端代码不区分两种模式。
+All endpoints use the `/api` prefix and JSON requests/responses, except artifact downloads. `demo_server.py` implements a subset of the same contract for the shared frontend. Chinese UI values and workbook keys below are preserved as actual wire-format examples; translating this documentation does not change the API.
 
-## 约定
+## Conventions
 
-- 时间：ISO 8601 带时区，例如 `2026-10-22T18:12:11+08:00`；
-- 日期：接口参数接受 `YYYY-MM-DD` 或 `YYYYMMDD`，响应里两种都可能出现；
-- 只读接口失败时返回 `200 {available:false, reason}` 或 `503`，前端显示原因而不是白屏；
-- 写接口参数错误返回 `400`，任务类型不可用返回 `409`，资源不存在返回 `404`；
-- 没有内置鉴权，默认只监听 `127.0.0.1`；如需暴露到局域网，请在前面加反向代理与认证。
+- Timestamps: ISO 8601 with timezone, such as `2026-10-22T18:12:11+08:00`.
+- Dates: parameters accept `YYYY-MM-DD` or `YYYYMMDD`; responses can contain either.
+- Unavailable read endpoints return `200 {available:false, reason}` or `503`; the frontend displays the reason.
+- Write endpoints return `400` for invalid parameters, `409` for unavailable job kinds and `404` for missing resources.
+- There is no built-in authentication. Bind to `127.0.0.1` by default; add an authenticated reverse proxy for network exposure.
 
-## 状态与配置
+## Status and configuration
 
 ### `GET /api/status`
 
-面板总状态。前端启动时首先调用。
+Overall application status, requested first when the frontend starts.
 
 ```json
 {
@@ -30,11 +30,11 @@
 }
 ```
 
-`demo:true` 时前端显示 `DEMO · 冻结快照` 徽标。
+`demo:true` displays the frozen-demo badge, `DEMO · 冻结快照`.
 
 ### `GET /api/config` · `PUT /api/config`
 
-读写面板配置。`PUT` 接受完整或部分配置，返回更新后的对象。
+Read/write application configuration. `PUT` accepts a full or partial configuration and returns the updated object.
 
 ```json
 {
@@ -47,9 +47,9 @@
 
 ### `GET /api/review` · `PUT /api/review`
 
-读写单日复盘记录。演示模式返回冻结样例。
+Read/write daily review notes. Demo mode returns frozen examples.
 
-## 任务
+## Jobs
 
 ### `POST /api/jobs`
 
@@ -57,19 +57,19 @@
 {"kind": "factor_evaluate", "params": {"date": "2026-10-22", "gate_alpha": 0.65}}
 ```
 
-`kind` 取值：
+Supported `kind` values:
 
-| kind | 作用 | 典型耗时 |
+| kind | Purpose | Typical duration |
 |---|---|---|
-| `data_update` | 日线 / 30F 增量与质量审计 | 分钟级 |
-| `factor_evaluate` | 因果回测 | 秒到分钟 |
-| `composite_factor` | 日模型 × 分时合成 | 秒级 |
-| `predict` | 日模型推演 | 分钟级 |
-| `intraday_predict` | 分时推演 | 秒级 |
-| `chan_multi` | 多级别结构 + walk-forward | 分钟级 |
-| `trend_refresh` | 行业 / 宽基趋势快照 | 分钟级 |
+| `data_update` | Daily / 30F increments and quality audit | Minutes |
+| `factor_evaluate` | Causal replay | Seconds to minutes |
+| `composite_factor` | Weighted cross-sectional blend of selected Kronos E1–E10 horizons | Seconds |
+| `predict` | Daily inference | Minutes |
+| `intraday_predict` | Intraday inference | Seconds |
+| `chan_multi` | Multi-level structures and walk-forward evaluation | Minutes |
+| `trend_refresh` | Industry / broad-market trend snapshots | Minutes |
 
-响应 `202`：
+Response `202`:
 
 ```json
 {
@@ -87,30 +87,30 @@
 
 ### `GET /api/runs` · `GET /api/runs/<id>`
 
-运行列表 / 单条详情。详情包含 `params`、`metadata`、`tail`（最后若干行日志）、`returncode`、`stage`、`progress`、`finished_at`。
+Run list / individual details. Details include `params`, `metadata`, `tail` (recent log lines), `returncode`, `stage`, `progress` and `finished_at`.
 
 ### `GET /api/artifacts` · `GET /api/artifacts/<path>`
 
-产物索引与下载。索引项：
+Artifact index and downloads. Example index item:
 
 ```json
 {"path": "chan_multi_5F-30F-D.csv", "size": 5526, "modified": 1761000000, "kind": "csv"}
 ```
 
-下载路径经过规范化，禁止 `..` 越界；只允许 `runs/` 与演示产物目录内的文件。
+Download paths are normalized, reject traversal through `..`, and are restricted to the run and demo artifact directories.
 
-## 结果快照
+## Result snapshots
 
-以下接口统一返回 `{available, path, result}`（`result` 内层按 `kind` 区分）：
+These endpoints return `{available, path, result}`; the inner result schema is selected by `kind`:
 
-| 接口 | `result.kind` |
+| Endpoint | `result.kind` |
 |---|---|
 | `GET /api/results/latest` | `kronos_prediction` |
 | `GET /api/factors/latest` | `factor_evaluation` |
 | `GET /api/composite/latest` | `kronos_composite_factor` |
 | `GET /api/intraday/latest` | `intraday_timing` |
 
-因子结果的关键字段：
+Key factor-result fields:
 
 ```json
 {
@@ -123,13 +123,13 @@
 }
 ```
 
-组合结果的 `top` 为 TopK 明细，`date_summary` 为逐日横截面，`future` 为次日预测均值，`horizons` 为 E1–E10 权重。
+Composite results use `top` for TopK details, `date_summary` for daily cross-sections and `future` for target dates and predicted means at selected horizons. `horizons` and associated weight fields describe the selected E1–E10 configuration; this is not limited to a next-day forecast.
 
-## 趋势
+## Trends
 
 ### `GET /api/trends`
 
-一次返回大盘 + 行业榜：
+Returns broad-market and industry rankings together:
 
 ```json
 {
@@ -147,27 +147,27 @@
 }
 ```
 
-行业项包含 `bottom`（底部/严格 1 买）、`phase_d`、`phase_w`、`trend_score`、`p_impulse`、`p_fast`、`rs20`、`rs60`、`position120`、`rank`、`data_quality`。
+Industry items include `bottom` (bottom/strict first-buy evidence), `phase_d`, `phase_w`, `trend_score`, `p_impulse`, `p_fast`, `rs20`, `rs60`, `position120`, `rank` and `data_quality`.
 
 ### `GET /api/trends/<code>?level=D|W|M`
 
-单代码单级别详情，返回 `{available, generation, summary, chart, wave, p_method}`。`chart` 包含 K 线、笔、中枢、递归线段；`summary` 包含阶段、底部确认、位置。
+Returns `{available, generation, summary, chart, wave, p_method}` for one code/timeframe. `chart` includes OHLC bars, strokes, central zones and recursive segments; `summary` includes phase, bottom confirmation and position.
 
 ### `GET /api/market_wave` · `GET /api/chan_phase`
 
-市场浪型与缠论阶段序列，供趋势页叠加。
+Market wave and Chan-phase series for trend-page overlays.
 
 ### `GET /api/chan_multi?combo=5F-30F-D`
 
-多级别结构快照。`combo` 支持 `5F-30F-D`、`30F-D-W`、`D-W-M`。
+Multi-level structure snapshot. `combo` accepts `5F-30F-D`, `30F-D-W` or `D-W-M`.
 
 ### `GET /api/chan_multi/eval?combo=5F-30F-D`
 
-walk-forward 评估：`balanced_accuracy`、混淆矩阵、逐窗口结果。
+Walk-forward evaluation: `balanced_accuracy`, confusion matrices and per-window results.
 
 ### `GET /api/chan/classic-cases`
 
-经典案例索引与逐 bar 切片：
+Classic-case index and per-bar slices:
 
 ```json
 {
@@ -181,7 +181,7 @@ walk-forward 评估：`balanced_accuracy`、混淆矩阵、逐窗口结果。
 }
 ```
 
-## 日模型
+## Daily model
 
 ### `GET /api/champion_workbook`
 
@@ -197,20 +197,20 @@ walk-forward 评估：`balanced_accuracy`、混淆矩阵、逐窗口结果。
 }
 ```
 
-演示模式把 `个股最新` 裁剪到 Top 320，字段与真实模式一致。
+Demo mode clips the latest-stock sheet, `个股最新`, to Top 320 while preserving the live schema.
 
-## 分时
+## Intraday
 
-| 接口 | 说明 |
+| Endpoint | Purpose |
 |---|---|
-| `GET /api/intraday/analytics` | 分时汇总、预测路径、行业强度 |
-| `GET /api/intraday/industry-ranking` | 行业相对强弱排名 |
-| `GET /api/intraday/market-curve` | 市场当日曲线 |
-| `GET /api/intraday/ic-trend?date=YYYY-MM-DD` | 分时 IC 历史 |
-| `POST /api/intraday/timing` | 计算买卖窗口与持仓提醒 |
-| `GET /api/market/volume-history?days=250` | 成交历史、涨停/连板聚合 |
+| `GET /api/intraday/analytics` | Intraday summary, forecast paths and industry strength |
+| `GET /api/intraday/industry-ranking` | Relative industry strength |
+| `GET /api/intraday/market-curve` | Current-session market curve |
+| `GET /api/intraday/ic-trend?date=YYYY-MM-DD` | Intraday IC history |
+| `POST /api/intraday/timing` | Entry/exit windows and position reminders |
+| `GET /api/market/volume-history?days=250` | Turnover history and limit-up aggregates |
 
-## 纸上账户
+## Paper account
 
 ### `GET /api/intraday/account`
 
@@ -235,7 +235,7 @@ walk-forward 评估：`balanced_accuracy`、混淆矩阵、逐窗口结果。
 {"capital": 1000000, "reset": false}
 ```
 
-`reset:true` 清空持仓与交易记录；`capital` 必须为正数，且不能低于当前持仓成本。
+`reset:true` clears positions and trades. `capital` must be positive and cannot be below the current position cost.
 
 ### `POST /api/intraday/positions`
 
@@ -243,11 +243,11 @@ walk-forward 评估：`balanced_accuracy`、混淆矩阵、逐窗口结果。
 {"ts_code": "600519.SH", "shares": 100, "entry_price": 1480.0, "entry_date": "2026-10-23"}
 ```
 
-记录纸上持仓并扣减现金；同一代码重复提交会覆盖旧仓并退回旧成本。
+Record a paper position and deduct cash. Resubmitting the same code replaces its prior position and refunds the prior cost.
 
 ### `DELETE /api/intraday/positions/<id>`
 
-撤销录入：退回现金，不产生交易记录。
+Undo an entry and refund cash without creating a trade.
 
 ### `POST /api/intraday/positions/<id>/sell`
 
@@ -255,23 +255,23 @@ walk-forward 评估：`balanced_accuracy`、混淆矩阵、逐窗口结果。
 {"price": 1522.5, "reason": "手动平仓"}
 ```
 
-写入平仓记录、计算盈亏与累计统计；`price` 省略时使用最新提醒价。
+Record a close, calculate P&L and update aggregate statistics. If `price` is omitted, use the latest reminder price.
 
-> 所有账户接口只操作本地 JSON 文件（真实模式）或内存字典（演示模式），**没有任何券商下单接口**。
+> Account endpoints only modify local JSON in live research mode or in-memory dictionaries in demo mode. **There is no brokerage order interface.**
 
-## 行情
+## Market data
 
 ### `GET /api/market_snapshot`
 
-| 参数 | 说明 |
+| Parameter | Definition |
 |---|---|
-| `mode` | `stock`（个股）或 `snapshot`（全市场） |
+| `mode` | `stock` for one stock, or `snapshot` for the market |
 | `symbol` | `600519.SH` |
-| `limit` | 1–200，默认 100 |
-| `date` | 可选，`YYYYMMDD` |
-| `industry` | 可选，行业代码 |
+| `limit` | 1–200; default 100 |
+| `date` | Optional, `YYYYMMDD` |
+| `industry` | Optional industry code |
 
-`mode=stock` 返回：
+Response for `mode=stock`:
 
 ```json
 {
@@ -285,12 +285,12 @@ walk-forward 评估：`balanced_accuracy`、混淆矩阵、逐窗口结果。
 
 ### `GET /api/visuals/market` · `GET /api/visuals/factors`
 
-可视化兼容接口；真实计算不可用时返回 `503`，前端有降级路径。
+Visualization compatibility endpoints. Return `503` when computation is unavailable; the frontend supports a fallback.
 
-## 错误示例
+## Error example
 
 ```json
 {"available": false, "reason": "尚未生成（运行 chan_multi_engine.py --combo D-W-M）"}
 ```
 
-前端会把 `reason` 直接显示在对应卡片里。新增接口请保持这一约定。
+The frontend displays `reason` directly in the corresponding card. Preserve this convention for new endpoints.

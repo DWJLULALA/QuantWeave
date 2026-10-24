@@ -1,65 +1,43 @@
-# 隐私与安全边界
+# Privacy and security boundaries
 
-QuantWeave 从私有研究环境整理为开源项目时，做了两类工作：**移除可识别信息**，以及**收窄代码的攻击面**。
+The public project separates portable application code and sanitized examples from private research infrastructure. The measures below describe the publication process and current application boundaries.
 
-## 移除了什么
+## Material excluded or replaced
 
-| 类别 | 处理 |
+| Category | Treatment |
 |---|---|
-| 绝对路径 | `/data*/*/...`、`/Users/...` 统一替换为 `/opt/kronos`、`/opt/quantweave` |
-| 用户名 / 主机名 | 原研究环境的用户名、SSH 别名、GPU 主机名全部移除 |
-| 内网地址 | 私网 IP 段、端口转发与 autossh 配置全部移除 |
-| 解释器路径 | conda 环境路径改为 `sys.executable` |
-| SSH / 部署 | `~/.ssh/config`、`launchctl`、autossh 命令不进入仓库 |
-| 个人部署记录 | 原《前端资产与部署记录》不收录；部署说明重写为通用流程 |
-| 真实持仓 / 账户 | 演示账户为合成数据，不代表任何人的真实账户 |
-| 行情授权凭据 | 不包含 token、cookie、账号、数据库连接串 |
+| Private absolute paths | Replace with `/opt/kronos`, `/opt/quantweave` or configurable placeholders |
+| Usernames and hosts | Remove private usernames, SSH aliases and compute-host names |
+| Private network configuration | Exclude private addresses, port forwards and autossh settings |
+| Interpreter paths | Use `sys.executable` instead of private conda environment paths |
+| SSH and deployment files | Exclude SSH configuration, launch services and personal deployment records |
+| Actual accounts and positions | Use synthetic paper-account examples |
+| Provider credentials | Exclude tokens, cookies, account credentials and database connection strings |
 
-## 路径映射
+`KRONOS_ROOT` can override the portable model-root placeholder. Documentation uses repository-relative paths and user-supplied configuration rather than a private workstation layout.
 
-| 原路径 | 开源后 |
-|---|---|
-| `<data-root>/<user>/.../Kronos` | `/opt/kronos`（可用 `KRONOS_ROOT` 覆盖） |
-| `<data-root>/<user>/.../stock_lab_ui` | `/opt/quantweave`（仓库根部） |
-| `<data-root>/<user>/.conda/envs/*/bin/python` | `sys.executable` |
-| `/Users/<user>/...` | 不出现；文档使用相对路径 |
+## Application controls
 
-## 代码侧的安全约束
+- **Job allowlist:** `POST /api/jobs` accepts enumerated kinds, not arbitrary commands.
+- **Argument arrays:** subprocesses use argv with `shell=False`.
+- **Parameter validation:** dates, codes, enums and numeric ranges are checked before execution.
+- **Download scope:** artifact paths are normalized, traversal is rejected and downloads stay within run/demo artifact roots.
+- **Explicit computation:** read-only snapshots do not initiate background calculations.
+- **Local binding:** there is no built-in authentication; bind to `127.0.0.1`. Network deployments require authentication and an appropriate reverse proxy.
+- **Paper account only:** account operations use local files or demo memory; no brokerage order API is connected.
 
-- **任务白名单**：`POST /api/jobs` 只接受枚举内的 `kind`，不能传任意命令；
-- **无 shell**：所有子进程用 argv 数组 + `shell=False`；
-- **参数校验**：日期、代码、枚举、数值范围逐项校验，不把用户输入拼进命令；
-- **路径规范化**：产物下载拒绝 `..`，只允许 `runs/` 与演示产物目录；
-- **只读优先**：大部分 API 只读快照，不触发计算；
-- **无鉴权 = 只监听本机**：默认 `127.0.0.1`。暴露到公网前必须加反向代理与认证，否则等于把任务执行接口开放给任何人；
-- **无实盘接口**：纸上账户只写本地 JSON，代码中没有任何券商下单调用。
+## Snapshot sanitization
 
-## 演示快照的脱敏
+During snapshot preparation, recursively inspect string values for private paths, identities, SSH aliases, hostnames, network addresses and runtime details. Remove them or replace them with portable values. Scan the staged publication content for known private identifiers, then manually review matches and representative payloads.
 
-`demo/snapshots/` 在生成时执行了递归字符串清洗：
+Pattern searches complement manual inspection; they are not proof that every sensitive value has been removed. Demo account balances, positions and trades are synthetic. Public stock names/codes in examples do not represent a person's holdings.
 
-```text
-绝对路径、用户名、SSH 别名、私网 IP
-→ 删除或替换
-```
+## Data and operational limits
 
-随后用以下方式复核：
+Frozen index and industry snapshots contain historical market observations alongside synthetic demo series. Public availability does not establish unrestricted redistribution rights; verify the relevant provider's terms before distributing another dataset. This repository does not include model weights, market databases or account credentials.
 
-```bash
-grep -rnE "<user>|/data[0-9]|server-[0-9]+|192\.168\.|10\.39\." \
-  --include="*.json" --include="*.py" --include="*.md" --include="*.js" \
-  --exclude-dir=.venv --exclude-dir=.git .
-```
+A new data integration needs its own access controls, authorization review and audit trail. Publication checks combine pattern matching and human review and may miss unexpected formats. Report suspected residual private information through a private channel.
 
-预期无输出。Demo 账户、持仓、交易记录均为合成数据；股票名称与代码来自公开市场信息，不构成持仓披露。
+## Reporting a problem
 
-## 已知限制
-
-- 演示快照包含真实历史行情切片（指数、行业、个股价格）。这些是公开市场数据，但不同数据源可能有各自的授权条款；再分发前请自行确认；
-- 仓库不附带模型权重、行情数据库或任何账号；
-- 开源前的扫描是**模式匹配 + 人工复核**，不能保证 100% 无遗漏。发现残留请联系维护者，会在下一个版本移除；
-- 若你基于本项目接入自己的数据，请自行负责数据合规、访问控制与审计。
-
-## 报告问题
-
-如果发现疑似敏感信息、路径泄露或安全问题，请通过 GitHub Security Advisory 或仓库 Issue 私下联系维护者，不要直接公开细节。
+Use GitHub's private vulnerability reporting if it is enabled. Otherwise ask the maintainer for a private contact channel without posting sensitive details. **Repository issues are public** and should not contain credentials, private paths or exploit details that require confidential handling.

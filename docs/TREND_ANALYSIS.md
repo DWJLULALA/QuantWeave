@@ -1,46 +1,59 @@
-# 趋势分析
+# Trend analysis
 
-入口 `#trends`，包含大盘趋势与行业趋势两个视图。旧因子页的大盘浪型概率、缠论阶段、多级别验证迁入此页。原有历史平滑P系列保留，敏感规则和指数位置叠加独立计算；历史样本内拟合和事后浪段明确标识，不能解释成外样本收益保证。
+Route `#trends` contains broad-market and industry views. Market wave tendencies, Chan phases and multi-level evaluation moved here from the factor page. Historical smoothed P remains available alongside separately computed sensitive rules and index position. In-sample fits and retrospective wave segments are labeled explicitly.
 
-大盘：上证指数、沪深300、中证500，可选两指数并排。行业：默认申万2021版一级31类、二级134类，可切换并按所属一级、名称／代码、日线底部状态筛选；保留中证全指行业10类，代码000986—000995。申万分类目录取官方2021对照表，并与Tushare `index_classify` 全量交叉核对；`sw_catalog.json` 固定版本且保留父级。“金融地产”沿用官方指数名称。中证系列日线取上交所，分钟取腾讯对应指数；申万日线取申万宏源研究官方OHLC。周/月线由日线合成；申万源站未提供可靠历史30/60分钟OHLC，页面禁用这些选项。不使用个股高低价拼造行业OHLC。
+Broad-market views cover the SSE Composite, CSI 300 and CSI 500, with two-index comparison. Industry views default to the Shenwan 2021 classification: 31 first-level and 134 second-level entries. Filter by parent, name/code or daily bottom state. Ten CSI All Share industries, codes 000986–000995, remain available. The catalog uses the official 2021 mapping and is cross-checked against Tushare `index_classify`; versioned `sw_catalog.json` preserves parent relationships and official names.
 
-## 数据与排名
+CSI daily series come from SSE, with corresponding Tencent indices for intraday data. Shenwan daily OHLC comes from SWS Research. Weekly/monthly bars are aggregated from daily data. Reliable historical Shenwan 30/60-minute OHLC was unavailable in this setup, so those choices are disabled. Individual-stock highs/lows are not combined into invented industry OHLC.
 
-新增 `trend_analysis.py`。CLI：`python trend_analysis.py --data-dir data/trends`。刷新先生成独立版本目录，所有数据写入后原子替换 `snapshot.json`；读取快照不会触发联网。失败保留上次版本。页面按钮和已有早/晚流水线通过独立 `trend_refresh` 任务刷新，不使用GPU，也不依赖模型预测结果；同类任务复用正在运行的任务。
+## Data and rankings
 
-API：
+CLI: `python trend_analysis.py --data-dir data/trends`.
 
-- `GET /api/trends`：同一收盘日的行业榜、覆盖、缺失原因、计算口径、生成时间。
-- `GET /api/trends/<code>?level=D|W|M|60F|30F`：结构、OHLC、MACD、该指数日度倾向序列。
-- `POST /api/jobs {"kind":"trend_refresh","params":{}}`：后台刷新，进度与日志通过已有运行中心查询。
+Refresh writes an independent generation directory and atomically replaces `snapshot.json` after all files are ready. Snapshot reads do not access the network. A failure retains the previous generation. The UI and morning/evening pipelines dispatch a separate `trend_refresh` job, requiring no GPU or model predictions; another request reuses an active job of that kind.
 
-排名采用沪深300最后完整收盘日期，并在每个分类内独立计算分位数和名次。完整行情榜排除缺同日行情、最近61个基准交易日不连续或结构计算历史不完整的行业。另设明确标识的参考榜：允许区间内部缺日，但20/60日相对强弱必须使用基准交易日的准确端点，绝不删缺日后改变N日跨度；结构和P只基于实际观察，可能受缺口影响。两榜分开排名，父级筛选保持全二级名次。分数为：
+- `GET /api/trends`: same-close industry rankings, coverage, unavailable reasons, methodology and generation time.
+- `GET /api/trends/<code>?level=D|W|M|60F|30F`: structures, OHLC, MACD and the index's daily tendency series, where that timeframe is supported.
+- `POST /api/jobs {"kind":"trend_refresh","params":{}}`: background refresh, with progress/logs in the run center.
 
-`100 × [0.40×结构分 + 0.30×P平滑 + 0.20×20日相对强弱分位 + 0.10×60日相对强弱分位]`
+Rankings use the latest completed CSI 300 close and compute percentiles independently within each classification. The complete-data ranking excludes industries without that close, a continuous last 61 benchmark sessions or sufficient structure history.
 
-结构分=`(0.7×日线阶段 + 0.3×周线阶段 + 1)/2`；阶段取−1/0/+1。结构项使用收盘相对最近已结束R2中枢边界的位置，不足时退到最近冻结R1线段方向，均不足为0。相对强弱=`(行业当前价/行业N日前价格)/(沪深300当前价/沪深300N日前价格)−1`，在当日可比较行业中计算平均秩分位。权重为固定展示规则，未在回测上调参；该分数不是校准的上涨概率。
+A separate reference ranking allows internal gaps. Its 20/60-session relative strength still uses the exact benchmark-calendar endpoints; removing missing rows must not shorten the horizon. Structure and P use observed data and can be affected by gaps. The two lists rank separately. Filtering by parent preserves the full second-level rank.
 
-P由道氏结构、Supertrend、ADX、Choppiness、均线排列、20日动量、推动计数七票构成，平滑衰减0.9；敏感线取短期四规则并按0.6平滑。ZigZag转折只在观察到反转时进入当时可用集合；灰色浪段另行事后绘制，不进入P或排名。120日位置使用收盘价区间，表示价格位置，非上涨概率。
+```text
+score = 100 × [0.40×structure + 0.30×smoothed_P
+             + 0.20×relative_strength_20_percentile
+             + 0.10×relative_strength_60_percentile]
+structure = (0.7×daily_phase + 0.3×weekly_phase + 1) / 2
+relative_strength_N = (industry_now/industry_N_ago) / (CSI300_now/CSI300_N_ago) - 1
+```
 
-## 结构与确认
+Phases are −1/0/+1. Each structural phase uses the close relative to the latest completed R2 zone, falling back to the latest frozen R1 segment direction, then zero if neither exists. Relative-strength percentiles use average ranks among comparable industries that day. Weights are fixed display rules, not optimized backtest parameters; the score is not a calibrated probability of an advance.
 
-OHLC包含处理后识别分型；保守地等待右邻合并K线关闭。使用合并K线实际保留极值，避免复活被包含处理舍弃的价格。后续笔已接续确认的历史笔画实线，末笔和原始价格延伸候选画虚线。
+P combines Dow structure, Supertrend, ADX, Choppiness, moving-average order, 20-day momentum and impulse count, with EMA decay 0.9. The sensitive line uses four short-term rules and decay 0.6. A ZigZag turn enters the knowable set only after the reversal is observed. Gray retrospective wave segments are drawn separately and excluded from P and rankings. The 120-day close-range position measures price location, not probability.
 
-灰色阴影仅为最近三笔重叠观察区；紫色线为冻结递归线段，绿色框为递归中枢，虚框为发展中枢。可切换R2/R3/R4中枢及其子层线段。特征序列处理包含与缺口，底层笔的冻结时间取相反新笔接续时刻，而非端点分型时刻。周/月图仅使用已结束周期；分钟图仅保留时间已结束的K线并累计归档。排名使用日线，盘中图的较新数据不混入收盘榜。
+## Structures and confirmation
 
-验证：`python -m unittest test_strict_chan test_trend_analysis test_trend_api -q`。另有实际行业逐日追加稳定性与截断重建审计。
+Fractals follow OHLC containment handling and wait for the right merged bar to close. Use extrema retained by merging, without reviving discarded prices. Historical strokes are solid only once an opposing stroke has been accepted; the last stroke and raw-price extensions remain dashed candidates.
 
+Gray shading marks only the latest three-stroke overlap observation area. Purple lines are frozen recursive segments; green boxes are recursive zones; dashed boxes are developing zones. Select R2/R3/R4 zones and their child-level segments. Feature sequences handle containment and gaps. Stroke freezing uses the opposing-stroke acceptance time, not merely the endpoint fractal time.
 
-## 底部诊断与数据质量
+Weekly/monthly charts use completed periods. Intraday charts retain closed bars and accumulate archives. Rankings use daily data; more recent intraday bars do not alter the close-based ranking.
 
-日线排名增加底部观察，点击行业自动滚动到结构图；观察卡列近期20根K线低点、右侧形态确认日期、分型上沿、近两次收盘是否站上、距低点幅度、笔级MACD面积／DIF比较和下一步条件。局部底分型须等右邻合并K线关闭；新增低点会撤销当前低点确认。相邻下降笔创新低、起点降低且负MACD面积与DIF同时减弱只标“背驰候选”；叠加底分型记“底分型＋背驰候选（1买观察）”。这不是严格趋势背驰。
+Validation: `python -m unittest test_strict_chan test_trend_analysis test_trend_api -q`. Additional audits compare daily append stability and truncated reconstruction on actual industry histories.
 
-新增严格递归引擎与逐层完成证据。R2及以上一买要求相邻同级中枢完整包络下降、b/c趋势背驰、c段创新低且确认前未再次创新低、末端次级别双中枢及递归背驰完成；R1笔级候选不升级为严格信号。界面标注历史低点、结构确认、首次实际观测、固定失效价和后续失效/修订撤回。缺口暂停评估；结构不足明确显示原因。日K结构层级以K线确认笔为基底，不等于真实30分钟区间套；申万历史分钟仍标未验证。完整条件与边界见 [STRICT_CHAN.md](STRICT_CHAN.md)。
+## Bottom diagnostics and data quality
 
-质量门槛先于诊断：完整榜要求近61个沪深300交易日和结构输入均无缺口。底部诊断逐周期检查截至该周期结束的实际日线输入，缺失即暂停确认；后来的缺日不能反向否定较早已结束月线。保持真实缺口，不插值、用前收补OHLC或替换成相近行业。参考分数可以观察，不允许由其推出一买确认。源站无数据、非同日、历史不足及缺口均保留目录并列明原因，点击显示可用图或明确不可用状态。
+Selecting an industry scrolls to its structure chart. The observation card shows the recent 20-bar low, right-side confirmation date, fractal upper boundary, whether the latest two closes exceed it, distance from the low, stroke-level MACD-area/DIF comparisons and remaining conditions.
 
-2026-10-19首次修复前快照截止10月16日：申万一级31类、二级124类进入参考榜，均缺10月15日等真实交易日，完整榜为空；另10个二级目录未发布当期指数。随后接入同指数补源，按交易所开市日历逐日对账；2026-09-25为休市，不能当作缺失日补K。保留官方原行、补入实际取得的OHLC，对重叠开收盘做身份校验并登记高低价争议；严格信号证据窗口涉及争议即拦截。最终覆盖以当前快照repair_summary和逐行业data_quality为准。所有历史补算使用首次实际获取时间，不伪装成过去实盘信号。
+A local bottom fractal waits for the right merged bar to close; a new low removes the current low confirmation. Adjacent descending strokes with a lower start/new low but weaker negative MACD area and DIF are only divergence candidates. Adding a bottom fractal creates a first-buy observation candidate, not confirmed strict trend divergence.
 
-来源与完整分类核验：`Stock/02_输出与想法/申万行业与底部确认_20261019_来源核验.md`。
+Strict R2+ events require fully separated descending zone envelopes, b/c divergence, a new low in c without a later lower low before confirmation, and completed lower-level terminal zones and recursive divergence. R1 candidates are not promoted. The UI separates the historical point, structure confirmation, first actual observation, fixed invalidation threshold and later invalidation/revision withdrawal. Gaps suspend evaluation; insufficient structure has an explicit reason. Daily-bar recursion does not establish real 30-minute nesting. See [STRICT_CHAN.md](STRICT_CHAN.md).
 
-新增契约验证：31/134父级完整性、底分型确认延迟与新低失效、缺日参考榜不改变20/60日锚点、发布的带缺口快照不能确认底部。源站网络失败可使用之前有效缓存；仅固定SWS公开数据接口存在证书链兼容回退，并在来源元数据标出tls_verified。
+Quality checks precede diagnostics. Complete rankings require continuous data over the last 61 CSI 300 sessions and the structure input. Bottom diagnostics check daily inputs through the end of each requested period; a later gap cannot invalidate an earlier completed month's evidence. Preserve genuine gaps rather than interpolating, substituting previous closes for OHLC or using a similar industry. A reference score cannot establish a confirmed first-buy event. Keep catalog entries with unavailable sources, stale closes, insufficient history or gaps, and show their reasons.
+
+Before the first repair on October 19, 2026, the snapshot ended October 16. All 31 first-level and 124 published second-level Shenwan entries belonged to the reference list because actual sessions, including October 15, were missing; the complete list was empty. Ten additional second-level entries had no published current index. A same-index supplementary source was then added and reconciled with the exchange calendar; September 25 was a closure, not a missing session.
+
+Preserve official rows, add only retrieved OHLC, verify identity with overlapping opens/closes and record high/low conflicts. Conflicts intersecting strict evidence block confirmation. Current coverage is defined by `repair_summary` and each industry's `data_quality`, not those historical counts. Historical reconstruction records actual first retrieval times instead of impersonating historical live alerts. The internal October 19 source audit documents catalog verification.
+
+Contract tests cover 31/134 parent relationships, fractal confirmation lag, new-low invalidation, unchanged 20/60-day anchors across gaps and prevention of bottom confirmation in published incomplete snapshots. Valid cached data can survive a network failure. A certificate-chain compatibility fallback is restricted to the fixed public SWS endpoint, and its source metadata records `tls_verified`.

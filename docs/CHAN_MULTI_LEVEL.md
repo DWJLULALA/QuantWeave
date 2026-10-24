@@ -1,159 +1,135 @@
-# 多级别缠论阶段引擎（5F–30F–D / 30F–D–W / D–W–M）
+# Multi-level Chan phase engine
 
-> 2026-10-18 上线。目标是把原来的单级别、收盘价简化版 `chan_phase_engine.py` 升级为
-> **OHLC、三级别、逐 bar 因果**的结构引擎，并在 10 年样本外检验“上涨 / 下跌 / 盘整”三分类的
-> balanced accuracy。
+Timeframe combinations: `5F–30F–D`, `30F–D–W`, `D–W–M`.
 
-## 1. 代码与入口
+Introduced October 18, 2026, this engine extends the earlier single-level, close-only `chan_phase_engine.py` to **OHLC, three timeframes and per-bar causal structures**. Evaluation measures balanced accuracy for advancing / declining / consolidating labels. Available out-of-sample history differs by combination.
 
-| 文件 | 作用 |
+## 1. Modules and entry points
+
+| File | Responsibility |
 |---|---|
-| `chan_core.py` | 单级别因果引擎：包含处理 → 分型 → 笔 → 中枢 → 背驰 → 逐 bar 状态 |
-| `chan_multi_engine.py` | 三级别拼装、标签、walk-forward、balanced accuracy、产物写出 |
-| `build_market_30f.py` | 用 2000+ 只 A 股的 30 分钟面板合成等权市场 30F 序列（含宽度） |
-| `build_market_5f.py` | 用 HS300 前 30 大权重股合成 5F 篮子（Baostock，前复权），并重采样 30F |
-| `app.py` | `POST /api/jobs` 的 `chan_multi`；`GET /api/chan_multi`；`GET /api/chan_multi/eval` |
-| `static/app.js` | 因子页“多级别缠论阶段”面板 |
-
-运行：
+| `chan_core.py` | Containment → fractals → strokes → zones → divergence → per-bar states |
+| `chan_multi_engine.py` | Combine timeframes, create labels, run walk-forward evaluation and write artifacts |
+| `build_market_30f.py` | Build an equal-weight 30-minute market series and breadth features from 2,000+ A-shares |
+| `build_market_5f.py` | Build a 5-minute basket from the 30 largest CSI 300 constituents using adjusted Baostock data; resample to 30 minutes |
+| `app.py` | `chan_multi` jobs and latest/evaluation endpoints |
+| `static/app.js` | Multi-level phase and evaluation panels |
 
 ```bash
-# 30F 全市场（一次性/数据更新后）
+# Rebuild the broad-market 30-minute series after data updates.
 python3 build_market_30f.py
 
-# 5F 篮子（首次约 30 分钟；断点续传）
+# Initial 5-minute basket build takes about 30 minutes; supports resuming.
 python3 build_market_5f.py --top 30 --start-year 2020
 
-# 三组合全量验证（或 --combo 5F-30F-D / 30F-D-W / D-W-M）
+# Evaluate all combinations, or select one with --combo.
 python3 chan_multi_engine.py --combo all
 ```
 
-产物在 `data/chan_multi/`：
+Artifacts under `data/chan_multi/`:
 
-```
-bars/                  market_30f.parquet, market_5f.parquet, 000300_SH_daily.parquet
-levels/                D/W/M/5F/30F 的逐 bar 状态缓存（fingerprint 含 ENGINE_VERSION）
+```text
+bars/                 market_30f.parquet, market_5f.parquet, 000300_SH_daily.parquet
+levels/               D/W/M/5F/30F per-bar caches; fingerprint includes ENGINE_VERSION
 combos/<combo>/        daily.csv, eval.json, latest.json, structures.json
 summary.json
 ```
 
-## 2. 数据口径
+## 2. Data definitions
 
-| 级别 | 来源 | 覆盖 | 说明 |
+Coverage below describes the documented October 18, 2026 run, not a live availability promise.
+
+| Level | Source | Coverage in the documented setup | Definition |
 |---|---|---|---|
-| 5F | HS300 前 30 大权重股篮子（2020-06-30 权重固定），Baostock 5 分钟前复权 | 2020-01 → 至今 | 权重股加权收益合成；不是 510300 逐笔 |
-| 30F（5F–30F–D） | 同一 5F 篮子重采样 30 分钟 | 2020-01 → 至今 | 与 5F 同源，避免跨品种拼接 |
-| 30F（30F–D–W） | `astock_30min_2000_panel` 2000+ 只 A 股等权合成 | 2000-06 → 2026-09-16 | 市场宽度序列；含上涨家数、5 根上涨占比、20 均线上方占比、截面离散度 |
-| D/W/M | 沪深 300 指数日线（Tushare `index_daily`） | 2005-01 → 至今 | W/M 由日线按自然周/月合成，时间戳为周期最后一个交易日 15:00 |
+| 5F | Top 30 CSI 300 constituents at fixed June 30, 2020 weights; adjusted Baostock bars | From January 2020 | Weighted stock-return basket, not tick data for ETF 510300 |
+| 30F in 5F–30F–D | Resampled from the same 5F basket | From January 2020 | Same underlying instrument proxy across both intraday levels |
+| 30F in 30F–D–W | Equal-weight `astock_30min_2000_panel`, 2,000+ A-shares | June 2000–September 16, 2026 | Market breadth proxy with advancing counts, five-bar breadth, share above MA20 and cross-sectional dispersion |
+| D/W/M | CSI 300 daily index from Tushare `index_daily` | From January 2005 | Calendar-week/month aggregation; timestamp is 15:00 on the final trading day |
 
-**为什么 5F 不是 510300 指数 5 分钟**：Tushare `stk_mins` 当前 token 限制为约 1 次/小时，
-无法在当天补齐 2016–2026 的 5 分钟数据；东财/新浪/腾讯只给近期或约 1488 根。
-Baostock 的指数/ETF 分钟线为空，但股票 5 分钟从 2020 年起可用，因此用固定 HS300 高权重
-篮子合成市场 5F 代理。该限制在页面“数据来源与覆盖”里明确标注。
+The original setup could not obtain a ten-year 5-minute index series: its Tushare `stk_mins` entitlement was limited to roughly one request per hour, while the tested East Money/Sina/Tencent interfaces supplied only recent or approximately 1,488 bars. Baostock returned no index/ETF minute series but supplied stock 5-minute data from 2020. The fixed constituent basket therefore serves as a proxy, with its source and coverage labeled in the UI. These observations describe that setup rather than every provider account.
 
-## 3. 结构规则（因果）
+## 3. Causal structure rules
 
-1. **包含处理**：后一根与当前合并 bar 存在包含关系时，按当前方向取高高/低高（向上）或
-   低低/高低（向下）；合并 bar 只有在出现下一根非包含 bar 时才“收盘”。
-2. **分型**：三根已收盘合并 bar 的顶/底分型。分型在右邻合并 bar 收盘的那根源 bar 才确认，
-   绝不提前使用未来 bar。
-3. **笔**：顶底交替；两个分型中心至少间隔 `min_gap=4` 根合并 bar。同类分型更极端时只替换
-   **最后一笔**端点；已写出的历史 bar 状态不重写（`test_chan_core` 前缀不变性测试）。
-4. **中枢**：连续三笔重叠区间 `ZD=max(低点)`、`ZG=min(高点)`；后续笔与 `[ZD,ZG]` 重叠则延伸，
-   连续两笔离开后结束。ZG/ZD 由前三笔固定；活动中枢允许在末笔端点替换时更新，但历史快照冻结。
-5. **阶段**：`close>ZG` 为上涨（1），`close<ZD` 为下跌（-1），区间内为盘整（0）。
-   `trend_score` 连续值 = 0.45×中枢位置 + 0.25×中枢斜率 + 0.30×末笔方向。
-6. **背驰**：相邻同向笔的 DIF 极值比较；顶背驰 -1、底背驰 +1。
-7. **第三类买卖点**：突破 ZG/ZD 后回抽不进入中枢的简化标记。
+1. **Containment:** merge contained bars according to the current direction, using higher highs/higher lows when rising and lower lows/lower highs when falling. A merged bar closes only when a subsequent non-contained bar appears.
+2. **Fractals:** identify a top/bottom from three closed merged bars. Confirmation occurs at the source bar that closes the right neighbor, never earlier.
+3. **Strokes:** alternate tops and bottoms, with fractal centers separated by at least `min_gap=4` merged bars. A more extreme same-type fractal may replace the last endpoint. Previously emitted per-bar states remain unchanged; `test_chan_core` checks prefix invariance.
+4. **Central zones:** three consecutive strokes define overlap bounds `ZD=max(lows)` and `ZG=min(highs)`. Extend while subsequent strokes overlap; terminate after two consecutive strokes leave. The initial three strokes fix ZD/ZG, although an active zone can update when its last stroke endpoint changes. Historical snapshots remain frozen.
+5. **Phases:** `close>ZG` → advancing (1); `close<ZD` → declining (-1); otherwise consolidating (0). `trend_score = 0.45×zone_position + 0.25×zone_slope + 0.30×last_stroke_direction`.
+6. **Divergence:** compare DIF extrema across adjacent strokes in the same direction; top divergence is -1 and bottom divergence +1.
+7. **Third-type entries/exits:** simplified markers for a breakout beyond ZG/ZD followed by a retracement that does not reenter the zone.
 
-## 4. 三级别特征
+## 4. Features across timeframes
 
-每个级别输出：`phase`、`trend_score`、`pivot_pos`、`pivot_width_pct`、`pivot_slope`、
-`pivot_zd_slope`、`pivot_width_rank`、`stroke_accel`、`dist_zg_pct`、`dist_zd_pct`、
-`pivot_age`、`pivot_strokes`、`last_dir`、`last_stroke_ret`、`div`、`third_buy`、
-`third_sell`、`phase_run`、`bars_since_fractal`、`has_pivot`、`breakout_strength`。
+Each level emits `phase`, `trend_score`, `pivot_pos`, `pivot_width_pct`, `pivot_slope`, `pivot_zd_slope`, `pivot_width_rank`, `stroke_accel`, `dist_zg_pct`, `dist_zd_pct`, `pivot_age`, `pivot_strokes`, `last_dir`, `last_stroke_ret`, `div`, `third_buy`, `third_sell`, `phase_run`, `bars_since_fractal`, `has_pivot` and `breakout_strength`.
 
-拼装特征：
+Combined features include:
 
-- `align_score = 0.25×低级 trend_score + 0.35×中级 trend_score + 0.40×高级 trend_score`
-- `align_phase`、`consensus`、`all_up/all_down`、`phase_gap`、`score_gap`
-- `div_sum`、`breakout_higher`
-- 市场宽度（辅助，不属于缠论级别）：`breadth_up`、`breadth_5`、`breadth_ma20`、
-  `dispersion` 及其 5 日变化
-- 价格控制变量：1/5/20/60 日收益、20/60 日波动、MA5/20/60 距离、RSI14、MACD 柱、
-  ATR14、20 日区间位置、成交量比
+- `align_score = 0.25×lower_trend_score + 0.35×middle_trend_score + 0.40×higher_trend_score`.
+- `align_phase`, `consensus`, `all_up/all_down`, `phase_gap`, `score_gap`, `div_sum`, `breakout_higher`.
+- Auxiliary market breadth, not Chan levels: `breadth_up`, `breadth_5`, `breadth_ma20`, `dispersion` and their five-day changes.
+- Price controls: 1/5/20/60-day returns, 20/60-day volatility, distances from MA5/20/60, RSI14, MACD histogram, ATR14, 20-day range position and volume ratio.
 
-## 5. 标签与验证
+## 5. Labels and validation
 
-**主标签（path，5 日）**：
+The primary five-day path label is:
 
-```
+```text
 fwd_ret = close[t+5]/close[t] - 1
 fwd_max = max(close[t+1..t+5])/close[t] - 1
 fwd_min = min(close[t+1..t+5])/close[t] - 1
-上涨  if fwd_ret >= +1.5% 且 fwd_min >= -2.5%
-下跌  if fwd_ret <= -1.5% 且 fwd_max <= +2.5%
-其余  盘整
+advancing      if fwd_ret >= +1.5% and fwd_min >= -2.5%
+declining      if fwd_ret <= -1.5% and fwd_max <= +2.5%
+consolidating  otherwise
 ```
 
-路径型标签把“冲高回落”归入盘整，和缠论“趋势 vs 中枢”的语义一致。端点型标签保留为对照
-（`endpoint_comparison`）。
+Path labels classify an advance followed by a reversal as consolidation. Endpoint-only labels remain a comparison in `endpoint_comparison`.
 
-**Walk-forward**：测试年份 Y 的模型只用 `label_end < Y-01-01` 的样本训练；每年重训。
-不存在未来标签或未来 bar 进入训练集（`test_chan_multi_engine` 有对应测试）。
+Walk-forward models for test year Y train only on samples with `label_end < Y-01-01`, and retrain annually. `test_chan_multi_engine` checks the exclusion of future labels and bars.
 
-**模型**：
-
-| 名称 | 说明 |
+| Model | Definition |
 |---|---|
-| `hgb_logit` | HistGradientBoosting，balanced 样本权重（主模型） |
-| `hier_logit` | 两阶段：趋势/盘整 → 方向；趋势阈值在训练尾 20% 校准 |
-| `combined_logit` | 多项 Logistic（缠论+宽度+价格） |
-| `chan_logit` | 只用缠论特征 |
-| `price_logit` | 只用宽度+价格特征 |
-| `rule` | 三级别阶段共振规则（无训练） |
-| `momentum` | 20 日动量 + 1% 死区 |
-| `single_chan` | 仅 D 级别 phase |
+| `hgb_logit` | HistGradientBoosting with balanced sample weights; primary model |
+| `hier_logit` | Trend/consolidation followed by direction; trend threshold calibrated on the final 20% of training data |
+| `combined_logit` | Multinomial logistic regression using Chan, breadth and price features |
+| `chan_logit` | Chan features only |
+| `price_logit` | Breadth and price features only |
+| `rule` | Three-level phase agreement without training |
+| `momentum` | 20-day momentum with a 1% dead band |
+| `single_chan` | Daily phase only |
 
-**指标**：balanced accuracy = 三类召回率宏平均；附混淆矩阵、逐年 BA、按月的 block bootstrap
-95% CI、相对规则的 ΔBA 的 95% CI。
+Balanced accuracy (BA) is the macro-average of recall across the three classes. Reports include confusion matrices, annual BA, monthly block-bootstrap 95% confidence intervals and intervals for ΔBA against the rule baseline.
 
-## 6. 结果（2026-10-18 实跑）
+## 6. Recorded results: October 18, 2026
 
-| 组合 | OOS | n | HGB BA | 分层 BA | 多因子Logit BA | 规则 BA | 单级别 BA |
-|---|---|---|---|---|---|---|---|
-| 5F–30F–D | 2022-01 → 2026-10 | 1152 | 0.364 | 0.380 | 0.382 | 0.338 | 0.350 |
-| 30F–D–W | 2016-01 → 2026-09 | 2597 | 0.384 | 0.349 | 0.338 | 0.333 | 0.323 |
-| D–W–M | 2016-01 → 2026-10 | 2613 | 0.361 | 0.323 | 0.318 | 0.337 | 0.326 |
+| Combination | OOS period | n | HGB BA | Hierarchical BA | Combined logistic BA | Rule BA | Single-level BA |
+|---|---|---:|---:|---:|---:|---:|---:|
+| 5F–30F–D | Jan 2022–Oct 2026 | 1152 | 0.364 | 0.380 | 0.382 | 0.338 | 0.350 |
+| 30F–D–W | Jan 2016–Sep 2026 | 2597 | 0.384 | 0.349 | 0.338 | 0.333 | 0.323 |
+| D–W–M | Jan 2016–Oct 2026 | 2613 | 0.361 | 0.323 | 0.318 | 0.337 | 0.326 |
 
-- **30F–D–W 是最强的 10 年结果**：HGB 0.384，相对规则 +0.052，95% CI **[0.016, 0.088]**（显著）。
-- 5F–30F–D：HGB 0.364，但分层/多因子 Logit 0.380–0.382；OOS 只有 4.8 年（5F 数据 2020 起），
-  训练窗仅 2020–2021，波动大；ΔBA 95% CI 跨 0。
-- D–W–M：HGB 0.361，相对规则 +0.024，95% CI **[-0.009, 0.064]**（不显著）。
-- 路径标签优于端点标签：30F–D–W 端点 BA 0.351 vs 路径 0.384（+3.3pp）。
-- 结构阶段本身高度持续：未来 3 日 D 阶段用“当前阶段”持久化预测的 BA ≈ 0.81；HGB 0.72，
-  **没有超过持久化基线**。因此这套模型的价值在“三分类的边际改善 + 中枢/趋势可解释状态”，
-  而不是替代简单趋势跟随。
+- The strongest ten-year result is 30F–D–W: HGB 0.384, ΔBA +0.052 versus the rule, 95% CI **[0.016, 0.088]**.
+- 5F–30F–D has only about 4.8 OOS years and a 2020–2021 initial training window. Hierarchical/combined logistic BA is 0.380–0.382 versus HGB 0.364; the HGB improvement interval crosses zero.
+- D–W–M: HGB 0.361, ΔBA +0.024, 95% CI **[-0.009, 0.064]**.
+- For 30F–D–W, path-label BA is 0.384 versus 0.351 for endpoint labels, a 3.3 percentage-point difference.
+- Structural phases are persistent. For the daily phase three days ahead, persistence achieves BA around 0.81 versus HGB 0.72. HGB did **not** beat this persistence baseline.
 
-**结论**：多级别缠论 + 市场宽度 + HGB 在 10 年样本外把三分类 BA 从约 0.33 提到 0.38，
-提升真实但幅度有限；方向预测仍是弱信号。建议把它作为**风险/阶段覆盖层**（例如下跌阶段减仓、
-盘整阶段降低暴露），而不是单独 alpha。
+These results support a modest improvement in three-class classification and an interpretable phase overlay. Direction prediction remains a weak signal; BA is not trading return.
 
-## 7. 限制
+## 7. Limits of this evaluation
 
-1. 5F 数据从 2020 起；要满足“5F 十年”，需更换有 2016+ 分钟历史的 Tushare token 或付费源。
-2. 30F 全市场面板截至 2026-09-16；30F–D–W 的最新状态为 2026-09-16（D 2026-09-16、W 2026-09-11），页面会标注滞后。
-3. 30F 是 2000+ 只股票的等权合成市场序列，不是 HS300 指数本身；5F 是 30 只高权重股篮子。
-4. 标签重叠（每日采样、5 日前瞻），bootstrap 按月分块只能部分处理自相关。
-5. 未计交易成本、滑点、涨跌停；BA 不是可交易收益。
-6. 规则/阈值/模型选择中，主口径（H=5、θ=1.5%、path、HGB）是预先声明的；网格结果仅作诊断。
+1. The 5F series starts in 2020. Ten-year 5F evaluation requires a source with earlier minute history.
+2. The documented broad-market 30F panel ends September 16, 2026. That run's 30F–D–W state uses D at September 16 and W at September 11; the UI labels the lag.
+3. The 30F broad-market series and 5F constituent basket are proxies, not the CSI 300 index itself.
+4. Daily samples have overlapping five-day labels; monthly block bootstrap only partially addresses dependence.
+5. Classification evaluation excludes fees, slippage and price-limit execution constraints.
+6. H=5, threshold 1.5%, path labels and HGB were declared as the primary protocol; parameter-grid results are diagnostic.
 
-## 8. 前端与 API
+## 8. UI and API
 
-- 页面：因子与 EMA → “多级别缠论阶段”面板；组合选择、运行验证、KPI、三级状态、混淆矩阵、
-  逐年 BA、H×θ 网格、数据来源/滞后。
-- API：
-  - `GET /api/chan_multi?combo=5F-30F-D|30F-D-W|D-W-M`
-  - `GET /api/chan_multi/eval?combo=...`
-  - `POST /api/jobs {"kind":"chan_multi","params":{"combo":"..."}}`
-- 改 `static/app.js`/`templates/index.html` 必须 bump `?v=`；本次为 `20261018-chan-multi3`。
+The trend section exposes combination selection, validation jobs, KPIs, three phase states, confusion matrices, annual BA, H×threshold grids, sources and lag information. The panel originated on the factor page and was subsequently moved to trend analysis.
+
+- `GET /api/chan_multi?combo=5F-30F-D|30F-D-W|D-W-M`
+- `GET /api/chan_multi/eval?combo=...`
+- `POST /api/jobs {"kind":"chan_multi","params":{"combo":"..."}}`
+
+When changing `static/app.js` or `templates/index.html`, bump the asset `?v=` cache version. The initial multi-level release used `20261018-chan-multi3`.
