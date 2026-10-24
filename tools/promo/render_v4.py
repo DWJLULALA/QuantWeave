@@ -85,7 +85,7 @@ def subtitle(d, scene, t, portrait=False, light=False):
         if v['at'] <= t < v['at']+v['duration']+.08:
             lines=wrap_line(v['text'],23 if portrait else 38)
             if portrait:
-                for j,line in enumerate(lines):text(d,500,1560+j*62,line,42,WHITE,anchor='mt',max_width=900)
+                for j,line in enumerate(lines):text(d,500,1510+j*56,line,40,WHITE,anchor='mt',max_width=900)
             else:
                 for j,line in enumerate(lines):text(d,960,974+j*48,line,38,INK if light else WHITE,anchor='mt',max_width=1780)
             break
