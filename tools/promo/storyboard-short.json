@@ -1,0 +1,36 @@
+{
+  "title": "QuantWeave · 抖音竖屏版",
+  "voice": "zh-CN-YunxiNeural",
+  "rate": "+12%",
+  "pitch": "-2Hz",
+  "scenes": [
+    {
+      "id": "short_hook",
+      "title": "股票排得准，为什么还亏？",
+      "lines": [
+        "股票排得很准，账户为什么还在亏？"
+      ]
+    },
+    {
+      "id": "short_rank",
+      "title": "第一名，也可能是负收益。",
+      "lines": [
+        "排第一，也可能只是跌得最少。所以先看市场阶段，再看选股排名。"
+      ]
+    },
+    {
+      "id": "short_stack",
+      "title": "我把研究拆成三层。",
+      "lines": [
+        "升浪和缠论看结构，Kronos 微调加 EMA 做排名，再用 SET10 补充反转风格。"
+      ]
+    },
+    {
+      "id": "short_cta",
+      "title": "把 GitHub 链接发给 AI。",
+      "lines": [
+        "这套工作台已经开源。把链接和智能体安装 README 发给 AI，让它启动本地 demo。不用 GPU，也不用行情账号。"
+      ]
+    }
+  ]
+}

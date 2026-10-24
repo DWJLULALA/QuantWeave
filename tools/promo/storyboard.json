@@ -1,0 +1,329 @@
+{
+  "title": "QuantWeave · 每一步判断，都有来处",
+  "voice": "zh-CN-YunxiNeural",
+  "rate": "+2%",
+  "pitch": "-2Hz",
+  "scenes": [
+    {
+      "id": "opening",
+      "chapter": "RESEARCH, WITH A TRACE.",
+      "title": "每一步判断，都有来处。",
+      "tag": "A 股量化研究工作台",
+      "lines": [
+        "收盘以后，你的判断，能不能从头再走一遍？"
+      ],
+      "shots": [
+        {
+          "source": "trends",
+          "start": 9.4,
+          "end": 14.7,
+          "crop": [
+            344,
+            350,
+            1456,
+            598
+          ]
+        }
+      ]
+    },
+    {
+      "id": "workflow",
+      "chapter": "QUANTWEAVE / WORKFLOW",
+      "title": "从数据，到复盘。",
+      "tag": "一个工作台 · 一条研究流程",
+      "lines": [
+        "QuantWeave，把数据、因子、结构和模型，接进同一个工作台。"
+      ],
+      "shots": [
+        {
+          "source": "home",
+          "start": 0.5,
+          "end": 7,
+          "crop": [
+            344,
+            130,
+            1456,
+            598
+          ]
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "chapter": "01 / DATA",
+      "title": "先确认，数据更新到了哪一天。",
+      "tag": "核对日期 → 更新 → 检查日志",
+      "lines": [
+        "先核对数据日期，再点一次更新。",
+        "等任务完成，检查日志里的结果。"
+      ],
+      "shots": [
+        {
+          "source": "data",
+          "start": 0.5,
+          "end": 2.8,
+          "crop": [
+            344,
+            150,
+            1456,
+            598
+          ],
+          "duration": 3.65
+        },
+        {
+          "source": "data",
+          "start": 7.5,
+          "end": 11.9,
+          "crop": [
+            344,
+            420,
+            1456,
+            598
+          ],
+          "note": "完成后 · 等待过程已剪短",
+          "duration": 4.0166666667
+        }
+      ]
+    },
+    {
+      "id": "factors",
+      "chapter": "02 / FACTORS",
+      "title": "把假设，变成可以检查的参数。",
+      "tag": "改参数 → 运行 → 查看排名",
+      "lines": [
+        "比如，把候选数量改成八十，再运行组合因子。",
+        "结果出来了，继续看每只股票的分数和排名。"
+      ],
+      "shots": [
+        {
+          "source": "factors",
+          "start": 0.9,
+          "end": 5.2,
+          "crop": [
+            344,
+            170,
+            1456,
+            598
+          ],
+          "duration": 4.25
+        },
+        {
+          "source": "factors",
+          "start": 8.7,
+          "end": 10,
+          "crop": [
+            344,
+            330,
+            1456,
+            598
+          ],
+          "duration": 1.1
+        },
+        {
+          "source": "factors",
+          "start": 12.3,
+          "end": 14.8,
+          "crop": [
+            344,
+            110,
+            1456,
+            598
+          ],
+          "note": "结果展示 · 等待过程已剪短",
+          "duration": 4.75
+        }
+      ]
+    },
+    {
+      "id": "trends",
+      "chapter": "03 / STRUCTURE",
+      "title": "排名给方向，结构给细节。",
+      "tag": "行业排名 → 银行 → 周线",
+      "lines": [
+        "再看行业排名。点进银行，展开它的结构。",
+        "切到周线，同一段行情，换个级别再看一次。"
+      ],
+      "shots": [
+        {
+          "source": "trends",
+          "start": 3.8,
+          "end": 7.8,
+          "crop": [
+            344,
+            150,
+            1456,
+            598
+          ]
+        },
+        {
+          "source": "trends",
+          "start": 8.4,
+          "end": 11.4,
+          "crop": [
+            344,
+            210,
+            1456,
+            598
+          ]
+        },
+        {
+          "source": "trends",
+          "start": 11.4,
+          "end": 14.9,
+          "crop": [
+            344,
+            350,
+            1456,
+            598
+          ]
+        }
+      ]
+    },
+    {
+      "id": "replay",
+      "chapter": "04 / REPLAY",
+      "title": "回到当时，只看当时。",
+      "tag": "经典案例 · 时间切片",
+      "lines": [
+        "想检查自己的判断，就把时间拨回当时。",
+        "只看那一天已经出现的价格和结构。"
+      ],
+      "shots": [
+        {
+          "file": "raw-v3/replay.webm",
+          "start": 2.403,
+          "end": 6.4,
+          "crop": [
+            344,
+            160,
+            1456,
+            598
+          ]
+        },
+        {
+          "file": "raw-v3/replay.webm",
+          "start": 6.4,
+          "end": 9.63,
+          "crop": [
+            344,
+            310,
+            1456,
+            598
+          ]
+        }
+      ]
+    },
+    {
+      "id": "model",
+      "chapter": "05 / MODELS",
+      "title": "空仓，也是一种模型结果。",
+      "tag": "日模型 · 风控状态与目标组合",
+      "lines": [
+        "模型也会给出空仓结果。",
+        "这个演示样例里，风控闸门关闭，目标仓位就是零。"
+      ],
+      "shots": [
+        {
+          "file": "raw-v3/model.webm",
+          "start": 2.877,
+          "end": 9.649,
+          "crop": [
+            344,
+            110,
+            1456,
+            598
+          ]
+        }
+      ]
+    },
+    {
+      "id": "intraday",
+      "chapter": "06 / PAPER ACCOUNT",
+      "title": "从预测，到一次模拟记录。",
+      "tag": "分时路径 → 录入股数 → 纸上账户",
+      "lines": [
+        "分时页面里，先看预测路径，再录入模拟持仓。",
+        "填入两百股，提交以后，回到账户核对记录。"
+      ],
+      "shots": [
+        {
+          "source": "intraday",
+          "start": 0.5,
+          "end": 5.4,
+          "crop": [
+            344,
+            400,
+            1456,
+            598
+          ]
+        },
+        {
+          "source": "intraday",
+          "start": 6.7,
+          "end": 11.4,
+          "crop": [
+            344,
+            482,
+            1456,
+            598
+          ]
+        },
+        {
+          "source": "intraday",
+          "start": 12.5,
+          "end": 16.7,
+          "crop": [
+            344,
+            100,
+            1456,
+            598
+          ]
+        }
+      ]
+    },
+    {
+      "id": "evidence",
+      "chapter": "07 / EVIDENCE",
+      "title": "做过什么，留下什么。",
+      "tag": "运行记录 · 执行日志 · 可下载产物",
+      "lines": [
+        "最后，回到运行记录。",
+        "参数、日志和产物，都有地方可以查。"
+      ],
+      "shots": [
+        {
+          "file": "raw-v3/evidence.webm",
+          "start": 3.862,
+          "end": 6.2,
+          "crop": [
+            344,
+            482,
+            1456,
+            598
+          ]
+        },
+        {
+          "file": "raw-v3/evidence.webm",
+          "start": 7.3,
+          "end": 9.689,
+          "crop": [
+            344,
+            80,
+            1456,
+            598
+          ]
+        }
+      ]
+    },
+    {
+      "id": "outro",
+      "chapter": "OPEN SOURCE / MIT",
+      "title": "QuantWeave",
+      "tag": "每一步判断，都有来处。",
+      "lines": [
+        "QuantWeave。把一轮研究，留成一条清楚的记录。"
+      ],
+      "shots": []
+    }
+  ]
+}

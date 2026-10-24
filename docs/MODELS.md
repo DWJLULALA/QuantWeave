@@ -22,24 +22,25 @@
 
 ### 分数
 
-Kronos 分数与 SET10 分数先做横截面标准化（`normal_score`，默认至少 100 个样本），再按权重合成：
+非纯 E 模式先将 Kronos 与 SET10 各自转换为截面分数，再分别做因果 EMA，最后合成：
 
 ```text
-raw = w_kronos × z(kronos) + w_set10 × z(set10)
-score = ema(raw, decay)          # Kronos / SET10 各自衰减
+K_t = decay_k × K_(t-1) + (1-decay_k) × normal_score(kronos_t)
+S_t = decay_s × S_(t-1) + (1-decay_s) × normal_score(set10_t)
+score_t = w_kronos × K_t + w_set10 × S_t
 ```
 
-`E1…E10` 是不同预测期限的横截面排名分位；纯 E 模式忽略 Kronos 与 SET10 权重，只按所选 E 序列等权或自定义权重排序。
+SET10 先逐因子截面 z、clip ±3、rank，再等权合成与 `normal_score`。这里的 `decay` 是旧值权重。近期训练窗口、LoRA 和研究对照见 [RESEARCH_EVIDENCE.md](RESEARCH_EVIDENCE.md)。
+
+`kronos_source=composite` 会提前转入 `composite_replay.py`：E1/E3/E5/E10 的截面分位映射到 [-1,1] 后等权合成，要求四个期限齐全，**不含 SET10，也不做日间 EMA**。该回放模式不应被解释成界面权重所表示的双因子策略。
 
 ### 门控
 
-```text
-gate_alpha = 0            关闭门控
-gate_alpha ∈ [0.5, 1)     开启
-gate_score = α × 市场浪型分 + (1-α) × 原始分
-```
-
-门控可以来源为 `wave`（市场浪型）或 `chan`（缠论因果阶段）。门控只影响**是否允许开仓**，不改变排序本身。
+- `chan`：`up_only` 仅上涨阶段允许持仓，`non_down` 排除下跌阶段，`off` 关闭；缺失阶段按关闭处理。
+- 非纯 E 模式的 `wave`：`gate_alpha` 是市场浪型 score 的时间平滑系数，范围为 0（停用波形门控）或 [0.5,1)。平滑后的市场 score ≥ 0 才开门。
+- `gate_alpha=0` **不会关闭缠论门控**；关闭缠论门控应明确设置 `gate_mode=off`。
+- 门控不混入个股排名分数；它影响是否可建仓，并在关闭时触发退出，订单仍受后续开盘与可成交约束。
+- 纯 E 回放支持 `off/non_down/up_only` 的缠论阶段比较，不支持用波形 α 混合排序。
 
 ### 指标
 
@@ -52,23 +53,16 @@ gate_score = α × 市场浪型分 + (1-α) × 原始分
 
 ## 2. 组合因子（`composite_factor.py`）
 
-把日模型分数与分时分数对齐到同一交易日，做横截面统一 Z：
+该模块选择 Kronos 的 E1–E10 预测期限，并独立计算截面分位；它不是日模型与分时模型的混合器：
 
 ```text
-z_daily  = cross_section_z(daily_score)
-z_intra  = cross_section_z(intraday_score)
-composite = w_daily × z_daily + w_intra × z_intra
+h_score = 2 × rank_pct(k_eh) - 1
+composite_score = Σ weight_h × h_score
 ```
 
-输出：
+权重经归一化，支持等权或自定义。输出 TopK、期限、实际权重、各日摘要、未来目标日期与均值、`stable/watch/break` 历史稳定性提示。它不执行模型训练或交易。
 
-- `top`：按 `composite` 排序的 TopK，含 `E1…E10` 预测、排名、稳定性标签；
-- `date_summary`：逐日横截面均值/离散度/覆盖率；
-- `future`：次日组合预测均值；
-- `horizons`：各期限权重；
-- `weights`：实际生效权重与样本数。
-
-稳定性标签（`stable / watch`）由分数在近 N 日的排名波动决定，仅作研究提示。
+展示模块允许选择期限；上节的纯 E 回放固定使用 E1/E3/E5/E10。两者能力不能混写。
 
 ## 3. 缠论结构（`chan_core.py` / `chan_multi_engine.py` / `strict_chan.py`）
 
@@ -146,15 +140,15 @@ score = 100 × [0.40 × structure
 |---|---|
 | 道氏结构 | 高点/低点同步抬高 |
 | Supertrend | 价格在趋势带之上 |
-| ADX | ADX ≥ 20 且 +DI > -DI |
-| Choppiness | Choppiness < 38.2（趋势市） |
-| 均线排列 | MA5 > MA10 > MA20 |
-| 20 日动量 | 动量为正 |
-| 推动计数 | 当前推动浪未走完 |
+| ADX | >25 记 +1，<20 记 −1，其余 0 |
+| Choppiness | <38.2 记 +1，>61.8 记 −1 |
+| 均线排列 | MA20 > MA60 > MA120 记 +1；反向排列 −1 |
+| 20 日动量 | >+2% 记 +1，<−2% 记 −1 |
+| 推动计数 | 由当时已确认的拐点检查推动结构约束 |
 
-每票 0/1，等权平均得到原始 P；再做 `p_smooth = 0.9×p_smooth_prev + 0.1×p_raw`。
+七票包含 −1/0/+1（推动计数为 0/1），`p_raw=(mean(votes)+1)/2`；再做 `p_smooth = 0.9×p_smooth_prev + 0.1×p_raw`。
 
-**事后数据隔离**：ZigZag 浪段需要未来确认，只用于灰色复盘图层，不进入 P、不进入排名。`ranking_uses_retrospective_labels` 必须为 `false`，否则前端拒绝展示排名。
+**事后数据隔离**：趋势页 `trend_analysis.py` 仅使用在当前 bar 已确认的拐点计算结构票；完整历史的事后 ZigZag 标签只用于灰色复盘图层，不进入 P、不进入排名。此说明针对趋势页的实现，不应直接替代其他旧版浪型脚本的因果审计。`ranking_uses_retrospective_labels` 必须为 `false`，否则前端拒绝展示排名。
 
 ## 5. 日模型（`predict`）
 
